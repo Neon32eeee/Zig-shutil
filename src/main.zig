@@ -63,7 +63,7 @@ pub const cmd = struct {
         try CmdCall(alloc, &command);
     }
 
-    pub fn echo(alloc: std.mem.Allocator, arg: []const u8, file: []const u8, overwrite: []const u8) !void {
+    pub fn echo(alloc: std.mem.Allocator, arg: []const u8, file: []const u8, overwrite: bool) !void {
         if (file) |f| {
             if (overwrite) {
                 if (file.len == 0) return ShutilError.InvalidPath;

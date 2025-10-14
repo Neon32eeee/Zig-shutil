@@ -132,52 +132,97 @@ pub const cmd = struct {
 
 pub const package = struct {
     pub const apt = struct {
-        pub fn install(alloc: std.mem.Allocator, pkg: []const u8) !void {
-            const command = [_][]const u8{ "sudo", "apt", "install", "-y", pkg };
-            try CmdCall(alloc, &command);
+        pub fn install(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
+            if (auto_yes) {
+                const command = [_][]const u8{ "sudo", "apt", "install", "-y", pkg };
+                try CmdCall(alloc, &command);
+            } else {
+                const command = [_][]const u8{ "sudo", "apt", "install", pkg };
+                try CmdCall(alloc, &command);
+            }
         }
 
-        pub fn remove(alloc: std.mem.Allocator, pkg: []const u8) !void {
-            const command = [_][]const u8{ "sudo", "apt", "remove", "-y", pkg };
-            try CmdCall(alloc, &command);
+        pub fn remove(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
+            if (auto_yes) {
+                const command = [_][]const u8{ "sudo", "apt", "remove", "-y", pkg };
+                try CmdCall(alloc, &command);
+            } else {
+                const command = [_][]const u8{ "sudo", "apt", "remove", pkg };
+                try CmdCall(alloc, &command);
+            }
         }
-        pub fn update(alloc: std.mem.Allocator) !void {
-            const command = [_][]const u8{ "sudo", "apt", "update", "-y" };
-            try CmdCall(alloc, &command);
+        pub fn update(alloc: std.mem.Allocator, auto_yes: bool) !void {
+            if (auto_yes) {
+                const command = [_][]const u8{ "sudo", "apt", "update", "-y" };
+                try CmdCall(alloc, &command);
+            } else {
+                const command = [_][]const u8{ "sudo", "apt", "update" };
+                try CmdCall(alloc, &command);
+            }
         }
     };
 
     pub const dnf = struct {
-        pub fn install(alloc: std.mem.Allocator, pkg: []const u8) !void {
-            const command = [_][]const u8{ "sudo", "dnf", "install", "-y", pkg };
-            try CmdCall(alloc, &command);
+        pub fn install(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
+            if (auto_yes) {
+                const command = [_][]const u8{ "sudo", "dnf", "install", "-y", pkg };
+                try CmdCall(alloc, &command);
+            } else {
+                const command = [_][]const u8{ "sudo", "dnf", "install", pkg };
+                try CmdCall(alloc, &command);
+            }
         }
 
-        pub fn remove(alloc: std.mem.Allocator, pkg: []const u8) !void {
-            const command = [_][]const u8{ "sudo", "dnf", "remove", "-y", pkg };
-            try CmdCall(alloc, &command);
+        pub fn remove(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
+            if (auto_yes) {
+                const command = [_][]const u8{ "sudo", "dnf", "remove", "-y", pkg };
+                try CmdCall(alloc, &command);
+            } else {
+                const command = [_][]const u8{ "sudo", "dnf", "remove", pkg };
+                try CmdCall(alloc, &command);
+            }
         }
 
-        pub fn update(alloc: std.mem.Allocator) !void {
-            const command = [_][]const u8{ "sudo", "dnf", "update", "-y" };
-            try CmdCall(alloc, &command);
+        pub fn update(alloc: std.mem.Allocator, auto_yes: bool) !void {
+            if (auto_yes) {
+                const command = [_][]const u8{ "sudo", "dnf", "update", "-y" };
+                try CmdCall(alloc, &command);
+            } else {
+                const command = [_][]const u8{ "sudo", "dnf", "update" };
+                try CmdCall(alloc, &command);
+            }
         }
     };
 
     pub const pacman = struct {
-        pub fn install(alloc: std.mem.Allocator, pkg: []const u8) !void {
-            const command = [_][]const u8{ "sudo", "pacman", "-S", "-noconfirm", pkg };
-            try CmdCall(alloc, &command);
+        pub fn install(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
+            if (auto_yes) {
+                const command = [_][]const u8{ "sudo", "pacman", "-S", "-noconfirm", pkg };
+                try CmdCall(alloc, &command);
+            } else {
+                const command = [_][]const u8{ "sudo", "pacman", "-S", pkg };
+                try CmdCall(alloc, &command);
+            }
         }
 
-        pub fn remove(alloc: std.mem.Allocator, pkg: []const u8) !void {
-            const command = [_][]const u8{ "sudo", "pacman", "-R", "-noconfirm", pkg };
-            try CmdCall(alloc, &command);
+        pub fn remove(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
+            if (auto_yes) {
+                const command = [_][]const u8{ "sudo", "pacman", "-R", "-noconfirm", pkg };
+                try CmdCall(alloc, &command);
+            } else {
+                const command = [_][]const u8{ "sudo", "pacman", "-R", pkg };
+                try CmdCall(alloc, &command);
+            }
         }
 
-        pub fn update(alloc: std.mem.Allocator) !void {
-            const command = [_][]const u8{ "sudo", "pacman", "-Syu", "-noconfirm" };
-            try CmdCall(alloc, &command);
+        pub fn update(alloc: std.mem.Allocator, auto_yes: bool) !void {
+            if (auto_yes) {
+                const command = [_][]const u8{ "sudo", "pacman", "-Syu", "-noconfirm" };
+                try CmdCall(alloc, &command);
+            } else {
+                const command = [_][]const u8{ "sudo", "pacman", "-Syu" };
+                try CmdCall(alloc, &command);
+            }
         }
     };
 };

@@ -96,12 +96,12 @@ const path = try shutil.cmd.pwd(allocator);
 ### Package Management
 Install a package using `apt`:
 ```zig
-try shutil.package.apt.install(allocator, "vim");
+try shutil.package.apt.install(allocator, "vim", true);
 ```
 
 Update package lists using `dnf`:
 ```zig
-try shutil.package.dnf.update(allocator);
+try shutil.package.dnf.update(allocator, true);
 ```
 
 ### User Information

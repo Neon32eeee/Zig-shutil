@@ -69,9 +69,15 @@ pub const cmd = struct {
         try CmdCall(alloc, &command);
     }
 
-    pub fn echo(alloc: std.mem.Allocator, arg: []const u8) !void {
-        const command = [_][]const u8{ "echo", arg };
-        try CmdCall(alloc, &command);
+    pub fn echo(alloc: std.mem.Allocator, arg: []const u8, file: []const u8) !void {
+        if (file) |f| {
+            if (file.len == 0) return ShutilError.InvalidPath;
+            const command = [_][]const u8{ "echo", arg, ">", f };
+            try CmdCall(alloc, &command);
+        } else {
+            const command = [_][]const u8{ "echo", arg };
+            try CmdCall(alloc, &command);
+        }
     }
 };
 

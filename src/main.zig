@@ -32,7 +32,7 @@ fn CmdCall(alloc: std.mem.Allocator, command: []const []const u8) !void {
 
 pub const cmd = struct {
     pub fn run(alloc: std.mem.Allocator, command: []const u8) !void {
-        const CommandTerimmed = [_][]const u8{command};
+        const CommandTerimmed = [_][]const u8{ "sh", "-c", command };
         try CmdCall(alloc, &CommandTerimmed);
     }
 

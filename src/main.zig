@@ -9,23 +9,39 @@ fn CmdCall(alloc: std.mem.Allocator, command: []const []const u8) !void {
 
     child.stdout_behavior = .Pipe;
     child.stderr_behavior = .Pipe;
+    child.stdin_behavior = .Pipe;
 
     try child.spawn();
 
     defer if (child.stdout) |*pipe| pipe.close();
     defer if (child.stderr) |*pipe| pipe.close();
+    defer if (child.stdin) |*pipe| pipe.close();
 
-    const stdout = if (child.stdout) |pipe| try pipe.readToEndAlloc(alloc, 1024 * 1024) else return ShutilError.NoStdout;
-    defer alloc.free(stdout);
+    var buffer: [4096]u8 = undefined;
 
-    const stderr = if (child.stderr) |pipe| try pipe.readToEndAlloc(alloc, 1024 * 1024) else &[_]u8{};
-    defer alloc.free(stderr);
+    const stdout_writer = std.io.getStdOut().writer();
+    const stderr_writer = std.io.getStdErr().writer();
 
-    try std.io.getStdOut().writeAll(stdout);
+    if (child.stdout) |pipe| {
+        while (true) {
+            const bytes_read = try pipe.read(&buffer);
+            if (bytes_read == 0) break; // Конец потока
+            try stdout_writer.writeAll(buffer[0..bytes_read]);
+        }
+    } else {
+        return ShutilError.NoStdout;
+    }
+
+    if (child.stderr) |pipe| {
+        while (true) {
+            const bytes_read = try pipe.read(&buffer);
+            if (bytes_read == 0) break; // Конец потока
+            try stderr_writer.writeAll(buffer[0..bytes_read]);
+        }
+    }
 
     const term = try child.wait();
     if (term.Exited != 0) {
-        if (stderr.len > 0) std.debug.print("Error: {s}\n", .{stderr});
         return ShutilError.ProcessFailed;
     }
 }

@@ -119,7 +119,7 @@ pub const cmd = struct {
 
     pub fn pwd(alloc: std.mem.Allocator) ![]const u8 {
         const command = [_][]const u8{"pwd"};
-        return CmdCallAndReturn(alloc, command);
+        return CmdCallAndReturn(alloc, &command);
     }
 };
 

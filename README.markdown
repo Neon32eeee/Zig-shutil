@@ -4,7 +4,7 @@ Shutil is a lightweight, open-source static library for Zig that simplifies comm
 
 ## Features
 
-- Execute shell commands with ease using `cmd.run`.
+- Execute shell commands with ease using `cmd.run`, and root commands using `cmd.sudo.run`.
 - File operations: copy (`cp`), move (`mv`), create directories (`mkdir`), create files (`touch`), display file contents (`cat`), echo text (`echo`), return faint path (`pwd`).
 - Package management support for `apt`, `dnf`, and `pacman` (install, remove, update).
 - User information utilities: retrieve user ID (`get_uid`) and username (`get_name`).
@@ -63,6 +63,17 @@ const shutil = @import("shutil");
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
     try shutil.cmd.run(allocator, "ls -l");
+}
+```
+
+Execute a shell command with root rights:
+```zig
+const std = @import("std");
+const shutil = @import("shutil");
+
+pub fn main() !void {
+    const allocator = std.heap.page_allocator;
+    try shutil.cmd.sudo.run(allocator, "ls -l");
 }
 ```
 

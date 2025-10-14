@@ -80,9 +80,16 @@ fn CmdCallAndReturn(alloc: std.mem.Allocator, command: []const []const u8) ![]co
 }
 
 pub const cmd = struct {
+    pub const sudo = struct {
+        pub fn run(alloc: std.mem.Allocator, command: []const u8) !void {
+            const CommandTrimmed = [_][]const u8{ "sudo", "sh", "-c", command };
+            try CmdCall(alloc, &CommandTrimmed);
+        }
+    };
+
     pub fn run(alloc: std.mem.Allocator, command: []const u8) !void {
-        const CommandTerimmed = [_][]const u8{ "sh", "-c", command };
-        try CmdCall(alloc, &CommandTerimmed);
+        const CommandTrimmed = [_][]const u8{ "sh", "-c", command };
+        try CmdCall(alloc, &CommandTrimmed);
     }
 
     pub fn cp(alloc: std.mem.Allocator, source: []const u8, target: []const u8) !void {

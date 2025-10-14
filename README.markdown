@@ -109,6 +109,7 @@ Shutil defines a custom error set (`ShutilError`) to handle common failure cases
 - `NoStdout`: No standard output available from the command.
 - `CommandNotFound`: Empty or invalid command provided.
 - `UserNotFound`: Unable to retrieve user information.
+- `InvalidArg`: Incorrectly used argument for a function.
 
 Example of handling errors:
 ```zig

@@ -1,12 +1,6 @@
 const std = @import("std");
 
-const ShutilError = error{
-    ProcessFailed,
-    InvalidPath,
-    NoStdout,
-    CommandNotFound,
-    UserNotFound,
-};
+const ShutilError = error{ ProcessFailed, InvalidPath, NoStdout, CommandNotFound, UserNotFound, InvalidArg };
 
 fn CmdCall(alloc: std.mem.Allocator, command: []const []const u8) !void {
     if (command.len == 0) return ShutilError.CommandNotFound;
@@ -69,14 +63,24 @@ pub const cmd = struct {
         try CmdCall(alloc, &command);
     }
 
-    pub fn echo(alloc: std.mem.Allocator, arg: []const u8, file: []const u8) !void {
+    pub fn echo(alloc: std.mem.Allocator, arg: []const u8, file: []const u8, overwrite: []const u8) !void {
         if (file) |f| {
-            if (file.len == 0) return ShutilError.InvalidPath;
-            const command = [_][]const u8{ "echo", arg, ">", f };
-            try CmdCall(alloc, &command);
+            if (overwrite) {
+                if (file.len == 0) return ShutilError.InvalidPath;
+                const command = [_][]const u8{ "echo", arg, ">", f };
+                try CmdCall(alloc, &command);
+            } else {
+                if (file.len == 0) return ShutilError.InvalidPath;
+                const command = [_][]const u8{ "echo", arg, ">>", f };
+                try CmdCall(alloc, &command);
+            }
         } else {
-            const command = [_][]const u8{ "echo", arg };
-            try CmdCall(alloc, &command);
+            if (overwrite) {
+                return ShutilError.InvalidArg;
+            } else {
+                const command = [_][]const u8{ "echo", arg };
+                try CmdCall(alloc, &command);
+            }
         }
     }
 };

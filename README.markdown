@@ -17,7 +17,7 @@ Shutil is a static library and can be included in your Zig project by adding the
 
 1. **Clone or download the library**:
    ```bash
-   git clone https://github.com/Neon32eeee/Zig-shutil/
+   git clone https://github.com/Neon32eeee/Zig-shutil.git
    ```
 
 2. **Add to your Zig project**:

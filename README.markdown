@@ -122,6 +122,3 @@ if (result) |_| {
 
 ## Contributing
 Contributions are welcome! Please submit issues or pull requests to the [GitHub repository](https://github.com/Neon32eeee/Zig-shutil/). Ensure your code follows Zig's style guidelines and includes appropriate tests.
-
-## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

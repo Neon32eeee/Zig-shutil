@@ -128,6 +128,17 @@ pub const cmd = struct {
         const command = [_][]const u8{"pwd"};
         return CmdCallAndReturn(alloc, &command);
     }
+
+    pub fn rm(alloc: std.mem.Allocator, file: []const u8, dir: bool) !void {
+        if (file.len == 0) return ShutilError.InvalidPath;
+        if (dir) {
+            const command = [_][]const u8{ "rm", "-r", file };
+            try CmdCall(alloc, &command);
+        } else {
+            const command = [_][]const u8{ "rm", file };
+            try CmdCall(alloc, &command);
+        }
+    }
 };
 
 pub const package = struct {

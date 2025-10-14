@@ -5,10 +5,10 @@ Shutil is a lightweight, open-source static library for Zig that simplifies comm
 ## Features
 
 - Execute shell commands with ease using `cmd.run`, and root commands using `cmd.sudo.run`.
-- File operations: copy (`cp`), move (`mv`), create directories (`mkdir`), create files (`touch`), display file contents (`cat`), echo text (`echo`), return faint path (`pwd`).
+- File operations: copy (`cp`), move (`mv`), create directories (`mkdir`), create files (`touch`), display file contents (`cat`), echo text (`echo`), return faint path (`pwd`), remove file or dir (`rm`).
 - Package management support for `apt`, `dnf`, and `pacman` (install, remove, update).
 - User information utilities: retrieve user ID (`get_uid`) and username (`get_name`).
-- Error handling for common issues like invalid paths, command failures, and missing outputs.
+- Error handling for common issues like invalid paths, command failuresail, and missing outputs.
 - Memory management using Zig's allocator for safe resource handling.
 
 ## Installation
@@ -91,6 +91,12 @@ try shutil.cmd.mkdir(allocator, "new_folder");
 Getting the current path:
 ```zig
 const path = try shutil.cmd.pwd(allocator);
+```
+
+Remove file and dir:
+```zig
+try shitil.cmd.rm(allocator, "text_file", false);
+try shitil.cmd.rm(allocator, "mydir", true);
 ```
 
 ### Package Management

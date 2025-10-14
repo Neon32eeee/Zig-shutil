@@ -30,6 +30,39 @@ fn CmdCall(alloc: std.mem.Allocator, command: []const []const u8) !void {
     }
 }
 
+fn CmdCallAndReturn(alloc: std.mem.Allocator, command: []const []const u8) ![]const u8 {
+    var child = std.process.Child.init(command, alloc);
+
+    child.stdout_behavior = .Pipe;
+    child.stderr_behavior = .Pipe;
+
+    try child.spawn();
+
+    defer if (child.stdout) |*pipe| pipe.close();
+    defer if (child.stderr) |*pipe| pipe.close();
+
+    const stdout = if (child.stdout) |pipe| try pipe.readToEndAlloc(alloc, 1024 * 1024) else return ShutilError.NoStdout;
+
+    const stderr = if (child.stderr) |pipe| try pipe.readToEndAlloc(alloc, 1024 * 1024) else &[_]u8{};
+    defer alloc.free(stderr);
+
+    const term = try child.wait();
+    if (term.Exited != 0) {
+        if (stderr.len > 0) std.debug.print("Error: {s}\n", .{stderr});
+        return ShutilError.ProcessFailed;
+    }
+
+    const trimmed = std.mem.trim(u8, stdout, " \n\r\t");
+    if (trimmed.len == 0) {
+        alloc.free(stdout);
+        return ShutilError.UserNotFound;
+    }
+
+    const result = try alloc.dupe(u8, trimmed);
+    alloc.free(stdout);
+    return result;
+}
+
 pub const cmd = struct {
     pub fn run(alloc: std.mem.Allocator, command: []const u8) !void {
         const CommandTerimmed = [_][]const u8{ "sh", "-c", command };
@@ -143,38 +176,8 @@ pub const user = struct {
         return UID;
     }
 
-    pub fn get_name() ![]const u8 {
-        var alloc = std.heap.page_allocator;
-
-        var child = std.process.Child.init(&[_][]const u8{"whoami"}, alloc);
-
-        child.stdout_behavior = .Pipe;
-        child.stderr_behavior = .Pipe;
-
-        try child.spawn();
-
-        defer if (child.stdout) |*pipe| pipe.close();
-        defer if (child.stderr) |*pipe| pipe.close();
-
-        const stdout = if (child.stdout) |pipe| try pipe.readToEndAlloc(alloc, 1024 * 1024) else return ShutilError.NoStdout;
-
-        const stderr = if (child.stderr) |pipe| try pipe.readToEndAlloc(alloc, 1024 * 1024) else &[_]u8{};
-        defer alloc.free(stderr);
-
-        const term = try child.wait();
-        if (term.Exited != 0) {
-            if (stderr.len > 0) std.debug.print("Error: {s}\n", .{stderr});
-            return ShutilError.ProcessFailed;
-        }
-
-        const trimmed = std.mem.trim(u8, stdout, " \n\r\t");
-        if (trimmed.len == 0) {
-            alloc.free(stdout);
-            return ShutilError.UserNotFound;
-        }
-
-        const result = try alloc.dupe(u8, trimmed);
-        alloc.free(stdout);
-        return result;
+    pub fn get_name(alloc: std.mem.Allocator) ![]const u8 {
+        const command = [_][]const u8{"whoami"};
+        return CmdCallAndReturn(alloc, &command);
     }
 };

@@ -91,13 +91,13 @@ try shutil.package.dnf.update(allocator);
 ### User Information
 Get the current user's ID:
 ```zig
-const uid = try shutil.user.get_uid();
+const uid = try shutil.user.get_uid(allocator);
 std.debug.print("User ID: {}\n", .{uid});
 ```
 
 Get the current username:
 ```zig
-const username = try shutil.user.get_name();
+const username = try shutil.user.get_name(allocator);
 defer allocator.free(username);
 std.debug.print("Username: {s}\n", .{username});
 ```

@@ -8,7 +8,7 @@ Shutil is a lightweight, open-source static library for Zig that simplifies comm
 - File operations: copy (`cp`), move (`mv`), create directories (`mkdir`), create files (`touch`), display file contents (`cat`), echo text (`echo`), return faint path (`pwd`), remove file or dir (`rm`).
 - Search: file (`find`), text in file (`grep`), command (`isAvilableCommand`).
 - Package management support for `apt`, `dnf`, `pacman`, and  `yum` (install, remove, update).
-- User information utilities: retrieve user ID (`get_uid`) and username (`get_name`).
+- User information utilities: retrieve user ID (`get_uid`) and username (`get_name`), add user (`add_user`) and del user (`del_user`).
 - Error handling for common issues like invalid paths, command failuresail, and missing outputs.
 - Memory management using Zig's allocator for safe resource handling.
 
@@ -123,6 +123,17 @@ Get the current username:
 const username = try shutil.user.get_name(allocator);
 defer allocator.free(username);
 std.debug.print("Username: {s}\n", .{username});
+```
+
+## Users Control
+User add
+```zig
+try shutil.user.add_user(alloctor, "user");
+```
+
+User del
+```zig
+try shutil.user.del_user(alloctor, "user");
 ```
 
 ## Search Operations

@@ -335,4 +335,14 @@ pub const user = struct {
         const command = [_][]const u8{"whoami"};
         return CmdCallAndReturn(alloc, &command);
     }
+
+    pub fn add_user(alloc: std.mem.Allocator, username: []const u8, options: []const u8) !void {
+        const command = [_][]const u8{ "sudo", "useradd", options, username };
+        try CmdCall(alloc, &command);
+    }
+
+    pub fn del_user(alloc: std.mem.Allocator, username: []const u8) !void {
+        const command = [_][]const u8{ "sudo", "userdel", username };
+        try CmdCall(alloc, &command);
+    }
 };

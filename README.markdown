@@ -6,7 +6,7 @@ Shutil is a lightweight, open-source static library for Zig that simplifies comm
 
 - Execute shell commands with ease using `cmd.run`, and root commands using `cmd.sudo.run`.
 - File operations: copy (`cp`), move (`mv`), create directories (`mkdir`), create files (`touch`), display file contents (`cat`), echo text (`echo`), return faint path (`pwd`), remove file or dir (`rm`).
-- Search: file (`find`), text in file (`grep`).
+- Search: file (`find`), text in file (`grep`), command (`isAvilableCommand`).
 - Package management support for `apt`, `dnf`, and `pacman` (install, remove, update).
 - User information utilities: retrieve user ID (`get_uid`) and username (`get_name`).
 - Error handling for common issues like invalid paths, command failuresail, and missing outputs.
@@ -123,6 +123,17 @@ Get the current username:
 const username = try shutil.user.get_name(allocator);
 defer allocator.free(username);
 std.debug.print("Username: {s}\n", .{username});
+```
+
+## Search Operations
+Search command:
+```zig
+const result = try shutil.cmd.isAvilableCommand(allocator, "ls");
+if (result) {
+    std.debug.print("You heve command ls!", .{});
+} else {
+    std.debug.print("You not heve command ls", .{});
+}
 ```
 
 ## Error Handling

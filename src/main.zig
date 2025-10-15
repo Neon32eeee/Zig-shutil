@@ -80,6 +80,15 @@ fn CmdCallAndReturn(alloc: std.mem.Allocator, command: []const []const u8) ![]co
 }
 
 pub const cmd = struct {
+    pub fn isAvilableCommand(alloc: std.mem.Allocator, command: []const u8) !bool {
+        const CommandTrimmed = [_][]const u8{ "command", "-v", command };
+        const result = CmdCallAndReturn(alloc, &CommandTrimmed) catch {
+            return false;
+        };
+        defer alloc.free(result);
+        return result.len > 0;
+    }
+
     pub const sudo = struct {
         pub fn run(alloc: std.mem.Allocator, command: []const u8) !void {
             const CommandTrimmed = [_][]const u8{ "sudo", "sh", "-c", command };
@@ -181,6 +190,15 @@ pub const package = struct {
                 try CmdCall(alloc, &command);
             }
         }
+
+        pub fn isAvilable(alloc: std.mem.Allocator) !bool {
+            const command = [_][]const u8{ "command", "-v", "apt" };
+            const result = CmdCallAndReturn(alloc, &command) catch {
+                return false;
+            };
+            defer alloc.free(result);
+            return result.len > 0;
+        }
     };
 
     pub const dnf = struct {
@@ -213,6 +231,15 @@ pub const package = struct {
                 try CmdCall(alloc, &command);
             }
         }
+
+        pub fn isAvilable(alloc: std.mem.Allocator) !bool {
+            const command = [_][]const u8{ "command", "-v", "dnf" };
+            const result = CmdCallAndReturn(alloc, &command) catch {
+                return false;
+            };
+            defer alloc.free(result);
+            return result.len > 0;
+        }
     };
 
     pub const pacman = struct {
@@ -244,6 +271,15 @@ pub const package = struct {
                 const command = [_][]const u8{ "sudo", "pacman", "-Syu" };
                 try CmdCall(alloc, &command);
             }
+        }
+
+        pub fn isAvilable(alloc: std.mem.Allocator) !bool {
+            const command = [_][]const u8{ "command", "-v", "pacman" };
+            const result = CmdCallAndReturn(alloc, &command) catch {
+                return false;
+            };
+            defer alloc.free(result);
+            return result.len > 0;
         }
     };
 };

@@ -282,6 +282,47 @@ pub const package = struct {
             return result.len > 0;
         }
     };
+
+    pub const yum = struct {
+        pub fn install(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
+            if (auto_yes) {
+                const command = [_][]const u8{ "sudo", "yum", "install", "-y", pkg };
+                try CmdCall(alloc, &command);
+            } else {
+                const command = [_][]const u8{ "sudo", "yum", "install", pkg };
+                try CmdCall(alloc, &command);
+            }
+        }
+
+        pub fn remove(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
+            if (auto_yes) {
+                const command = [_][]const u8{ "sudo", "yum", "remove", "-y", pkg };
+                try CmdCall(alloc, &command);
+            } else {
+                const command = [_][]const u8{ "sudo", "yum", "remove", pkg };
+                try CmdCall(alloc, &command);
+            }
+        }
+
+        pub fn update(alloc: std.mem.Allocator, auto_yes: bool) !void {
+            if (auto_yes) {
+                const command = [_][]const u8{ "sudo", "yum", "update", "-y" };
+                try CmdCall(alloc, &command);
+            } else {
+                const command = [_][]const u8{ "sudo", "yum", "update" };
+                try CmdCall(alloc, &command);
+            }
+        }
+
+        pub fn isAvilable(alloc: std.mem.Allocator) !bool {
+            const command = [_][]const u8{ "command", "-v", "yum" };
+            const result = CmdCallAndReturn(alloc, &command) catch {
+                return false;
+            };
+            defer alloc.free(result);
+            return result.len > 0;
+        }
+    };
 };
 
 pub const user = struct {

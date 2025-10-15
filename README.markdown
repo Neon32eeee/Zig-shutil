@@ -1,13 +1,13 @@
 # Shutil - Simplified Command Execution Library for Zig
 
-Shutil is a lightweight, open-source static library for Zig that simplifies command-line operations and process execution. It provides a convenient interface for running shell commands, managing files, and handling package management tasks across different Linux package managers (`apt`, `dnf`, `pacman`). The library also includes utilities for retrieving user information.
+Shutil is a lightweight, open-source static library for Zig that simplifies command-line operations and process execution. It provides a convenient interface for running shell commands, managing files, and handling package management tasks across different Linux package managers (`apt`, `dnf`, `pacman`, `yum`). The library also includes utilities for retrieving user information.
 
 ## Features
 
 - Execute shell commands with ease using `cmd.run`, and root commands using `cmd.sudo.run`.
 - File operations: copy (`cp`), move (`mv`), create directories (`mkdir`), create files (`touch`), display file contents (`cat`), echo text (`echo`), return faint path (`pwd`), remove file or dir (`rm`).
 - Search: file (`find`), text in file (`grep`), command (`isAvilableCommand`).
-- Package management support for `apt`, `dnf`, and `pacman` (install, remove, update).
+- Package management support for `apt`, `dnf`, `pacman`, and  `yum` (install, remove, update).
 - User information utilities: retrieve user ID (`get_uid`) and username (`get_name`).
 - Error handling for common issues like invalid paths, command failuresail, and missing outputs.
 - Memory management using Zig's allocator for safe resource handling.

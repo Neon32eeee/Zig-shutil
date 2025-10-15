@@ -139,6 +139,16 @@ pub const cmd = struct {
             try CmdCall(alloc, &command);
         }
     }
+
+    pub fn find(alloc: std.mem.Allocator, pattern: []const u8) ![]const u8 {
+        const command = [_][]const u8{ "find", pattern };
+        try CmdCallAndReturn(alloc, &command);
+    }
+
+    pub fn grep(alloc: std.mem.Allocator, pattern: []const u8, file: []const u8) ![]const u8 {
+        const command = [_][]const u8{ "grep", pattern, file };
+        return CmdCallAndReturn(alloc, &command);
+    }
 };
 
 pub const package = struct {

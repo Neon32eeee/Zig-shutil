@@ -42,6 +42,7 @@ fn CmdCall(alloc: std.mem.Allocator, command: []const []const u8) !void {
 
     const term = try child.wait();
     if (term.Exited != 0) {
+        std.debug.print("Command: {s}\n", .{command});
         return ShutilError.ProcessFailed;
     }
 }

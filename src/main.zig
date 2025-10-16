@@ -1,27 +1,37 @@
 const std = @import("std");
 
+// Defining custom error types for the library
 const ShutilError = error{ ProcessFailed, InvalidPath, NoStdout, CommandNotFound, UserNotFound, InvalidArg };
 
+// Executes a shell command and streams its output to stdout/stderr
 fn CmdCall(alloc: std.mem.Allocator, command: []const []const u8) !void {
+    // Check if the command is empty
     if (command.len == 0) return ShutilError.CommandNotFound;
 
+    // Initialize a child process with the given command and allocator
     var child = std.process.Child.init(command, alloc);
 
+    // Configure the child process to pipe stdout, stderr, and stdin
     child.stdout_behavior = .Pipe;
     child.stderr_behavior = .Pipe;
     child.stdin_behavior = .Pipe;
 
+    // Spawn the child process
     try child.spawn();
 
+    // Ensure pipes are closed after function execution
     defer if (child.stdout) |*pipe| pipe.close();
     defer if (child.stderr) |*pipe| pipe.close();
     defer if (child.stdin) |*pipe| pipe.close();
 
+    // Buffer for reading output
     var buffer: [4096]u8 = undefined;
 
+    // Get standard output and error writers
     const stdout_writer = std.io.getStdOut().writer();
     const stderr_writer = std.io.getStdErr().writer();
 
+    // Read and write stdout to the console
     if (child.stdout) |pipe| {
         while (true) {
             const bytes_read = try pipe.read(&buffer);
@@ -32,6 +42,7 @@ fn CmdCall(alloc: std.mem.Allocator, command: []const []const u8) !void {
         return ShutilError.NoStdout;
     }
 
+    // Read and write stdout to the console
     if (child.stderr) |pipe| {
         while (true) {
             const bytes_read = try pipe.read(&buffer);
@@ -40,6 +51,7 @@ fn CmdCall(alloc: std.mem.Allocator, command: []const []const u8) !void {
         }
     }
 
+    // Wait for the process to complete and check its exit status
     const term = try child.wait();
     if (term.Exited != 0) {
         std.debug.print("Command: {s}\n", .{command});
@@ -47,43 +59,55 @@ fn CmdCall(alloc: std.mem.Allocator, command: []const []const u8) !void {
     }
 }
 
+// Executes a shell command and returns its stdout as a string
 fn CmdCallAndReturn(alloc: std.mem.Allocator, command: []const []const u8) ![]const u8 {
+    // Initialize a child process with the given command and allocator
     var child = std.process.Child.init(command, alloc);
 
+    // Configure the child process to pipe stdout and stderr
     child.stdout_behavior = .Pipe;
     child.stderr_behavior = .Pipe;
 
+    // Spawn the child process
     try child.spawn();
 
+    // Ensure pipes are closed after function execution
     defer if (child.stdout) |*pipe| pipe.close();
     defer if (child.stderr) |*pipe| pipe.close();
 
+    // Read the entire stdout into a buffer
     const stdout = if (child.stdout) |pipe| try pipe.readToEndAlloc(alloc, 1024 * 1024) else return ShutilError.NoStdout;
 
+    // Read the entire stderr into a buffer
     const stderr = if (child.stderr) |pipe| try pipe.readToEndAlloc(alloc, 1024 * 1024) else &[_]u8{};
     if (stderr.len > 0) {
         std.debug.print("Error: {s}\n", .{stderr});
         defer alloc.free(stderr);
     }
 
+    // Wait for the process to complete and check its exit status
     const term = try child.wait();
     if (term.Exited != 0) {
         if (stderr.len > 0) std.debug.print("Error: {s}\n", .{stderr});
         return ShutilError.ProcessFailed;
     }
 
+    // Trim whitespace from the output
     const trimmed = std.mem.trim(u8, stdout, " \n\r\t");
     if (trimmed.len == 0) {
         alloc.free(stdout);
         return ShutilError.UserNotFound;
     }
 
+    // Duplicate the trimmed output for return
     const result = try alloc.dupe(u8, trimmed);
     alloc.free(stdout);
     return result;
 }
 
+// Namespace for command-related utilities
 pub const cmd = struct {
+    // Checks if a command is available in the system
     pub fn isAvilableCommand(alloc: std.mem.Allocator, command: []const u8) !bool {
         const CommandTrimmed = [_][]const u8{ "command", "-v", command };
         const result = CmdCallAndReturn(alloc, &CommandTrimmed) catch {
@@ -93,18 +117,22 @@ pub const cmd = struct {
         return result.len > 0;
     }
 
+    // Namespace for sudo-related commands
     pub const sudo = struct {
+        // Runs a command with sudo privileges
         pub fn run(alloc: std.mem.Allocator, command: []const u8) !void {
             const CommandTrimmed = [_][]const u8{ "sudo", "sh", "-c", command };
             try CmdCall(alloc, &CommandTrimmed);
         }
     };
 
+    // Runs a shell command
     pub fn run(alloc: std.mem.Allocator, command: []const u8) !void {
         const CommandTrimmed = [_][]const u8{ "sh", "-c", command };
         try CmdCall(alloc, &CommandTrimmed);
     }
 
+    // Copies a file or directory
     pub fn cp(alloc: std.mem.Allocator, source: []const u8, target: []const u8, recursive: bool) !void {
         if (source.len == 0 or target.len == 0) return ShutilError.InvalidPath;
         std.fs.cwd().access(source, .{}) catch return ShutilError.InvalidPath;
@@ -117,6 +145,7 @@ pub const cmd = struct {
         }
     }
 
+    // Moves a file or directory
     pub fn mv(alloc: std.mem.Allocator, source: []const u8, target: []const u8) !void {
         if (source.len == 0 or target.len == 0) return ShutilError.InvalidPath;
         std.fs.cwd().access(source, .{}) catch return ShutilError.InvalidPath;
@@ -124,16 +153,19 @@ pub const cmd = struct {
         try CmdCall(alloc, &command);
     }
 
+    // Creates a directory
     pub fn mkdir(alloc: std.mem.Allocator, name: []const u8) !void {
         const command = [_][]const u8{ "mkdir", name };
         try CmdCall(alloc, &command);
     }
 
+    // Creates an empty file
     pub fn touch(alloc: std.mem.Allocator, name: []const u8) !void {
         const command = [_][]const u8{ "touch", name };
         try CmdCall(alloc, &command);
     }
 
+    // Displays the contents of a file
     pub fn cat(alloc: std.mem.Allocator, file: []const u8) !void {
         if (file.len == 0) return ShutilError.InvalidPath;
         std.fs.cwd().access(file, .{}) catch return ShutilError.InvalidPath;
@@ -141,16 +173,19 @@ pub const cmd = struct {
         try CmdCall(alloc, &command);
     }
 
+    // Prints a string to stdout
     pub fn echo(alloc: std.mem.Allocator, arg: []const u8) !void {
         const command = [_][]const u8{ "echo", arg };
         try CmdCall(alloc, &command);
     }
 
+    // Returns the current working directory
     pub fn pwd(alloc: std.mem.Allocator) ![]const u8 {
         const command = [_][]const u8{"pwd"};
         return CmdCallAndReturn(alloc, &command);
     }
 
+    // Removes a file or directory
     pub fn rm(alloc: std.mem.Allocator, file: []const u8, dir: bool) !void {
         if (file.len == 0) return ShutilError.InvalidPath;
         if (dir) {
@@ -166,19 +201,24 @@ pub const cmd = struct {
         }
     }
 
+    // Searches for files matching a pattern
     pub fn find(alloc: std.mem.Allocator, pattern: []const u8) ![]const u8 {
         const command = [_][]const u8{ "find", pattern };
         try CmdCallAndReturn(alloc, &command);
     }
 
+    // Searches for a pattern in a file
     pub fn grep(alloc: std.mem.Allocator, pattern: []const u8, file: []const u8) ![]const u8 {
         const command = [_][]const u8{ "grep", pattern, file };
         return CmdCallAndReturn(alloc, &command);
     }
 };
 
+// Namespace for package management utilities
 pub const package = struct {
+    // Namespace for apt package manager
     pub const apt = struct {
+        // Installs a package using apt
         pub fn install(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
             if (pkg.len == 0) return ShutilError.InvalidArg;
             if (auto_yes) {
@@ -190,6 +230,7 @@ pub const package = struct {
             }
         }
 
+        // Removes a package using apt
         pub fn remove(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
             if (pkg.len == 0) return ShutilError.InvalidArg;
             if (auto_yes) {
@@ -200,6 +241,8 @@ pub const package = struct {
                 try CmdCall(alloc, &command);
             }
         }
+
+        // Updates the apt package index
         pub fn update(alloc: std.mem.Allocator, auto_yes: bool) !void {
             if (auto_yes) {
                 const command = [_][]const u8{ "sudo", "apt", "update", "-y" };
@@ -210,6 +253,7 @@ pub const package = struct {
             }
         }
 
+        // Checks if apt is available
         pub fn isAvilable(alloc: std.mem.Allocator) !bool {
             const command = [_][]const u8{ "command", "-v", "apt" };
             const result = CmdCallAndReturn(alloc, &command) catch {
@@ -220,7 +264,9 @@ pub const package = struct {
         }
     };
 
+    // Namespace for dnf package manager
     pub const dnf = struct {
+        // Installs a package using dnf
         pub fn install(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
             if (pkg.len == 0) return ShutilError.InvalidArg;
             if (auto_yes) {
@@ -232,6 +278,7 @@ pub const package = struct {
             }
         }
 
+        // Removes a package using dnf
         pub fn remove(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
             if (pkg.len == 0) return ShutilError.InvalidArg;
             if (auto_yes) {
@@ -243,6 +290,7 @@ pub const package = struct {
             }
         }
 
+        // Updates the dnf package index
         pub fn update(alloc: std.mem.Allocator, auto_yes: bool) !void {
             if (auto_yes) {
                 const command = [_][]const u8{ "sudo", "dnf", "update", "-y" };
@@ -253,6 +301,7 @@ pub const package = struct {
             }
         }
 
+        // Checks if dnf is available
         pub fn isAvilable(alloc: std.mem.Allocator) !bool {
             const command = [_][]const u8{ "command", "-v", "dnf" };
             const result = CmdCallAndReturn(alloc, &command) catch {
@@ -263,7 +312,9 @@ pub const package = struct {
         }
     };
 
+    // Namespace for pacman package manager
     pub const pacman = struct {
+        // Installs a package using pacman
         pub fn install(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
             if (pkg.len == 0) return ShutilError.InvalidArg;
             if (auto_yes) {
@@ -275,6 +326,7 @@ pub const package = struct {
             }
         }
 
+        // Removes a package using pacman
         pub fn remove(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
             if (pkg.len == 0) return ShutilError.InvalidArg;
             if (auto_yes) {
@@ -286,6 +338,7 @@ pub const package = struct {
             }
         }
 
+        // Updates the pacman package index
         pub fn update(alloc: std.mem.Allocator, auto_yes: bool) !void {
             if (auto_yes) {
                 const command = [_][]const u8{ "sudo", "pacman", "-Syu", "-noconfirm" };
@@ -296,6 +349,7 @@ pub const package = struct {
             }
         }
 
+        // Checks if pacman is available
         pub fn isAvilable(alloc: std.mem.Allocator) !bool {
             const command = [_][]const u8{ "command", "-v", "pacman" };
             const result = CmdCallAndReturn(alloc, &command) catch {
@@ -306,7 +360,9 @@ pub const package = struct {
         }
     };
 
+    // Namespace for yum package manager
     pub const yum = struct {
+        // Installs a package using yum
         pub fn install(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
             if (pkg.len == 0) return ShutilError.InvalidArg;
             if (auto_yes) {
@@ -318,6 +374,7 @@ pub const package = struct {
             }
         }
 
+        // Removes a package using yum
         pub fn remove(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
             if (pkg.len == 0) return ShutilError.InvalidArg;
             if (auto_yes) {
@@ -329,6 +386,7 @@ pub const package = struct {
             }
         }
 
+        // Updates the yum package index
         pub fn update(alloc: std.mem.Allocator, auto_yes: bool) !void {
             if (auto_yes) {
                 const command = [_][]const u8{ "sudo", "yum", "update", "-y" };
@@ -339,6 +397,7 @@ pub const package = struct {
             }
         }
 
+        // Checks if yum is available
         pub fn isAvilable(alloc: std.mem.Allocator) !bool {
             const command = [_][]const u8{ "command", "-v", "yum" };
             const result = CmdCallAndReturn(alloc, &command) catch {
@@ -350,12 +409,15 @@ pub const package = struct {
     };
 };
 
+// Namespace for user management utilities
 pub const user = struct {
+    // Retrieves the current user's UID
     pub fn get_uid() !u32 {
         const UID = std.os.linux.getuid();
         return UID;
     }
 
+    // Retrieves the current user's username
     pub fn get_name(alloc: std.mem.Allocator) ![]const u8 {
         const command = [_][]const u8{"whoami"};
         const result = try CmdCallAndReturn(alloc, &command);
@@ -365,11 +427,13 @@ pub const user = struct {
         return result;
     }
 
+    // Adds a new user to the system
     pub fn add_user(alloc: std.mem.Allocator, username: []const u8) !void {
         const command = [_][]const u8{ "sudo", "useradd", username };
         try CmdCall(alloc, &command);
     }
 
+    // Deletes a user from the system
     pub fn del_user(alloc: std.mem.Allocator, username: []const u8) !void {
         const command = [_][]const u8{ "sudo", "userdel", username };
         try CmdCall(alloc, &command);

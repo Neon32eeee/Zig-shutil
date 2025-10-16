@@ -35,7 +35,7 @@ fn CmdCall(alloc: std.mem.Allocator, command: []const []const u8) !void {
     if (child.stderr) |pipe| {
         while (true) {
             const bytes_read = try pipe.read(&buffer);
-            if (bytes_read == 0) break; // Конец потока
+            if (bytes_read == 0) break;
             try stderr_writer.writeAll(buffer[0..bytes_read]);
         }
     }
@@ -180,6 +180,7 @@ pub const cmd = struct {
 pub const package = struct {
     pub const apt = struct {
         pub fn install(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
+            if (pkg.len == 0) return ShutilError.InvalidArg;
             if (auto_yes) {
                 const command = [_][]const u8{ "sudo", "apt", "install", "-y", pkg };
                 try CmdCall(alloc, &command);
@@ -190,6 +191,7 @@ pub const package = struct {
         }
 
         pub fn remove(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
+            if (pkg.len == 0) return ShutilError.InvalidArg;
             if (auto_yes) {
                 const command = [_][]const u8{ "sudo", "apt", "remove", "-y", pkg };
                 try CmdCall(alloc, &command);
@@ -220,6 +222,7 @@ pub const package = struct {
 
     pub const dnf = struct {
         pub fn install(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
+            if (pkg.len == 0) return ShutilError.InvalidArg;
             if (auto_yes) {
                 const command = [_][]const u8{ "sudo", "dnf", "install", "-y", pkg };
                 try CmdCall(alloc, &command);
@@ -230,6 +233,7 @@ pub const package = struct {
         }
 
         pub fn remove(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
+            if (pkg.len == 0) return ShutilError.InvalidArg;
             if (auto_yes) {
                 const command = [_][]const u8{ "sudo", "dnf", "remove", "-y", pkg };
                 try CmdCall(alloc, &command);
@@ -261,6 +265,7 @@ pub const package = struct {
 
     pub const pacman = struct {
         pub fn install(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
+            if (pkg.len == 0) return ShutilError.InvalidArg;
             if (auto_yes) {
                 const command = [_][]const u8{ "sudo", "pacman", "-S", "-noconfirm", pkg };
                 try CmdCall(alloc, &command);
@@ -271,6 +276,7 @@ pub const package = struct {
         }
 
         pub fn remove(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
+            if (pkg.len == 0) return ShutilError.InvalidArg;
             if (auto_yes) {
                 const command = [_][]const u8{ "sudo", "pacman", "-R", "-noconfirm", pkg };
                 try CmdCall(alloc, &command);
@@ -302,6 +308,7 @@ pub const package = struct {
 
     pub const yum = struct {
         pub fn install(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
+            if (pkg.len == 0) return ShutilError.InvalidArg;
             if (auto_yes) {
                 const command = [_][]const u8{ "sudo", "yum", "install", "-y", pkg };
                 try CmdCall(alloc, &command);
@@ -312,6 +319,7 @@ pub const package = struct {
         }
 
         pub fn remove(alloc: std.mem.Allocator, pkg: []const u8, auto_yes: bool) !void {
+            if (pkg.len == 0) return ShutilError.InvalidArg;
             if (auto_yes) {
                 const command = [_][]const u8{ "sudo", "yum", "remove", "-y", pkg };
                 try CmdCall(alloc, &command);

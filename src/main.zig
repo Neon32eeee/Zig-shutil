@@ -102,11 +102,16 @@ pub const cmd = struct {
         try CmdCall(alloc, &CommandTrimmed);
     }
 
-    pub fn cp(alloc: std.mem.Allocator, source: []const u8, target: []const u8) !void {
+    pub fn cp(alloc: std.mem.Allocator, source: []const u8, target: []const u8, recursive: bool) !void {
         if (source.len == 0 or target.len == 0) return ShutilError.InvalidPath;
         std.fs.cwd().access(source, .{}) catch return ShutilError.InvalidPath;
-        const command = [_][]const u8{ "cp", source, target };
-        try CmdCall(alloc, &command);
+        if (recursive) {
+            const command = [_][]const u8{ "cp", "-r", source, target };
+            try CmdCall(alloc, &command);
+        } else {
+            const command = [_][]const u8{ "cp", source, target };
+            try CmdCall(alloc, &command);
+        }
     }
 
     pub fn mv(alloc: std.mem.Allocator, source: []const u8, target: []const u8) !void {

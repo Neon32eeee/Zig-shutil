@@ -358,7 +358,11 @@ pub const user = struct {
 
     pub fn get_name(alloc: std.mem.Allocator) ![]const u8 {
         const command = [_][]const u8{"whoami"};
-        return CmdCallAndReturn(alloc, &command);
+        const result = try CmdCallAndReturn(alloc, &command);
+        if (result.len == 0) {
+            return ShutilError.UserNotFound;
+        }
+        return result;
     }
 
     pub fn add_user(alloc: std.mem.Allocator, username: []const u8) !void {

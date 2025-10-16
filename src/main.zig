@@ -61,7 +61,10 @@ fn CmdCallAndReturn(alloc: std.mem.Allocator, command: []const []const u8) ![]co
     const stdout = if (child.stdout) |pipe| try pipe.readToEndAlloc(alloc, 1024 * 1024) else return ShutilError.NoStdout;
 
     const stderr = if (child.stderr) |pipe| try pipe.readToEndAlloc(alloc, 1024 * 1024) else &[_]u8{};
-    defer alloc.free(stderr);
+    if (stderr.len > 0) {
+        std.debug.print("Error: {s}\n", .{stderr});
+        defer alloc.free(stderr);
+    }
 
     const term = try child.wait();
     if (term.Exited != 0) {

@@ -103,12 +103,14 @@ pub const cmd = struct {
 
     pub fn cp(alloc: std.mem.Allocator, source: []const u8, target: []const u8) !void {
         if (source.len == 0 or target.len == 0) return ShutilError.InvalidPath;
+        std.fs.cwd().access(source, .{}) catch return ShutilError.InvalidPath;
         const command = [_][]const u8{ "cp", source, target };
         try CmdCall(alloc, &command);
     }
 
     pub fn mv(alloc: std.mem.Allocator, source: []const u8, target: []const u8) !void {
         if (source.len == 0 or target.len == 0) return ShutilError.InvalidPath;
+        std.fs.cwd().access(source, .{}) catch return ShutilError.InvalidPath;
         const command = [_][]const u8{ "mv", source, target };
         try CmdCall(alloc, &command);
     }
@@ -124,6 +126,8 @@ pub const cmd = struct {
     }
 
     pub fn cat(alloc: std.mem.Allocator, file: []const u8) !void {
+        if (file.len == 0) return ShutilError.InvalidPath;
+        std.fs.cwd().access(file, .{}) catch return ShutilError.InvalidPath;
         const command = [_][]const u8{ "cat", file };
         try CmdCall(alloc, &command);
     }
@@ -141,9 +145,13 @@ pub const cmd = struct {
     pub fn rm(alloc: std.mem.Allocator, file: []const u8, dir: bool) !void {
         if (file.len == 0) return ShutilError.InvalidPath;
         if (dir) {
+            if (file.len == 0) return ShutilError.InvalidPath;
+            std.fs.cwd().access(file, .{}) catch return ShutilError.InvalidPath;
             const command = [_][]const u8{ "rm", "-r", file };
             try CmdCall(alloc, &command);
         } else {
+            if (file.len == 0) return ShutilError.InvalidPath;
+            std.fs.cwd().access(file, .{}) catch return ShutilError.InvalidPath;
             const command = [_][]const u8{ "rm", file };
             try CmdCall(alloc, &command);
         }
@@ -336,8 +344,8 @@ pub const user = struct {
         return CmdCallAndReturn(alloc, &command);
     }
 
-    pub fn add_user(alloc: std.mem.Allocator, username: []const u8, options: []const u8) !void {
-        const command = [_][]const u8{ "sudo", "useradd", options, username };
+    pub fn add_user(alloc: std.mem.Allocator, username: []const u8) !void {
+        const command = [_][]const u8{ "sudo", "useradd", username };
         try CmdCall(alloc, &command);
     }
 

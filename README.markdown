@@ -96,8 +96,8 @@ const path = try shutil.cmd.pwd(allocator);
 
 Remove file and dir:
 ```zig
-try shitil.cmd.rm(allocator, "text_file", false);
-try shitil.cmd.rm(allocator, "mydir", true);
+try shuitil.cmd.rm(allocator, "text_file", false);
+try shuitil.cmd.rm(allocator, "mydir", true);
 ```
 
 ### Package Management

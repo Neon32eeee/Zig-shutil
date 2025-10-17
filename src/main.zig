@@ -209,8 +209,15 @@ pub const cmd = struct {
 
     // Searches for a pattern in a file
     pub fn grep(alloc: std.mem.Allocator, pattern: []const u8, file: []const u8) ![]const u8 {
+        if (pattern.len == 0) return ShutilError.InvalidArg;
         const command = [_][]const u8{ "grep", pattern, file };
-        return CmdCallAndReturn(alloc, &command);
+        const result = try CmdCallAndReturn(alloc, &command);
+
+        if (result.len == 0) {
+            return "";
+        }
+
+        return result;
     }
 };
 

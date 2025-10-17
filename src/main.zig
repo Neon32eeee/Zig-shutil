@@ -108,7 +108,7 @@ fn CmdCallAndReturn(alloc: std.mem.Allocator, command: []const []const u8) ![]co
 // Namespace for command-related utilities
 pub const cmd = struct {
     // Checks if a command is available in the system
-    pub fn isAvilableCommand(alloc: std.mem.Allocator, command: []const u8) !bool {
+    pub fn isAvailableCommand(alloc: std.mem.Allocator, command: []const u8) !bool {
         const CommandTrimmed = [_][]const u8{ "command", "-v", command };
         const result = CmdCallAndReturn(alloc, &CommandTrimmed) catch {
             return false;
@@ -254,7 +254,7 @@ pub const package = struct {
         }
 
         // Checks if apt is available
-        pub fn isAvilable(alloc: std.mem.Allocator) !bool {
+        pub fn isAvailable(alloc: std.mem.Allocator) !bool {
             const command = [_][]const u8{ "command", "-v", "apt" };
             const result = CmdCallAndReturn(alloc, &command) catch {
                 return false;
@@ -302,7 +302,7 @@ pub const package = struct {
         }
 
         // Checks if dnf is available
-        pub fn isAvilable(alloc: std.mem.Allocator) !bool {
+        pub fn isAvailable(alloc: std.mem.Allocator) !bool {
             const command = [_][]const u8{ "command", "-v", "dnf" };
             const result = CmdCallAndReturn(alloc, &command) catch {
                 return false;
@@ -350,7 +350,7 @@ pub const package = struct {
         }
 
         // Checks if pacman is available
-        pub fn isAvilable(alloc: std.mem.Allocator) !bool {
+        pub fn isAvailable(alloc: std.mem.Allocator) !bool {
             const command = [_][]const u8{ "command", "-v", "pacman" };
             const result = CmdCallAndReturn(alloc, &command) catch {
                 return false;
@@ -398,7 +398,7 @@ pub const package = struct {
         }
 
         // Checks if yum is available
-        pub fn isAvilable(alloc: std.mem.Allocator) !bool {
+        pub fn isAvailable(alloc: std.mem.Allocator) !bool {
             const command = [_][]const u8{ "command", "-v", "yum" };
             const result = CmdCallAndReturn(alloc, &command) catch {
                 return false;

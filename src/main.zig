@@ -203,8 +203,15 @@ pub const cmd = struct {
 
     // Searches for files matching a pattern
     pub fn find(alloc: std.mem.Allocator, pattern: []const u8) ![]const u8 {
+        if (pattern.len == 0) return ShutilError.InvalidArg;
         const command = [_][]const u8{ "find", pattern };
-        try CmdCallAndReturn(alloc, &command);
+        const result = try CmdCallAndReturn(alloc, &command);
+
+        if (result.len == 0) {
+            return "";
+        }
+
+        return result;
     }
 
     // Searches for a pattern in a file

@@ -80,6 +80,7 @@ fn CmdCallAndReturn(alloc: std.mem.Allocator, command: []const []const u8) ![]co
 
     // Read the entire stderr into a buffer
     const stderr = if (child.stderr) |pipe| try pipe.readToEndAlloc(alloc, 1024 * 1024) else &[_]u8{};
+    defer alloc.free(stderr);
     if (stderr.len > 0) {
         std.debug.print("Error: {s}\n", .{stderr});
         defer alloc.free(stderr);

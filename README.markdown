@@ -9,7 +9,7 @@ Shutil is a lightweight, open-source static library for Zig that simplifies comm
 - Search: file (`find`), text in file (`grep`), command (`isAvilableCommand`).
 - Package management support for `apt`, `dnf`, `pacman`, and  `yum` (install, remove, update).
 - User information utilities: retrieve user ID (`get_uid`) and username (`get_name`), add user (`add_user`) and del user (`del_user`).
-- Git operations: clone (`clone`).
+- Git operations: clone (`clone`), commit (`commit`), push (`push`).
 - Error handling for common issues like invalid paths, command failuresail, and missing outputs.
 - Memory management using Zig's allocator for safe resource handling.
 
@@ -152,6 +152,16 @@ if (result) {
 Clone project
 ```zig
 try shutil.git.clone(allocator, "https://github.com/Neon32eeee/Zig-shutil.git");
+```
+
+Commit
+```zig
+try shutil.git.commit(allocator, "This commit was made using Zig-shutil!");
+```
+
+Push
+```zig
+try shutil.git.push(allocator, "origin", "main");
 ```
 
 ## Error Handling

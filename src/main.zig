@@ -187,10 +187,10 @@ pub const cmd = struct {
     }
 
     // Removes a file or directory
-    pub fn rm(alloc: std.mem.Allocator, file: []const u8, dir: bool, force: bool) !void {
+    pub fn rm(alloc: std.mem.Allocator, file: []const u8, flags: struct { dir: bool = false, force: bool = false }) !void {
         if (file.len == 0) return ShutilError.InvalidArg;
-        if (dir) {
-            if (force) {
+        if (flags.dir) {
+            if (flags.force) {
                 std.fs.cwd().access(file, .{}) catch return ShutilError.InvalidPath;
                 const command = [_][]const u8{ "rm", "-r", "-f", file };
                 try CmdCall(alloc, &command);
@@ -200,7 +200,7 @@ pub const cmd = struct {
                 try CmdCall(alloc, &command);
             }
         } else {
-            if (force) {
+            if (flags.force) {
                 if (file.len == 0) return ShutilError.InvalidPath;
                 std.fs.cwd().access(file, .{}) catch return ShutilError.InvalidPath;
                 const command = [_][]const u8{ "rm", "-f", file };

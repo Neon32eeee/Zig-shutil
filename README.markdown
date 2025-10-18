@@ -82,7 +82,7 @@ pub fn main() !void {
 ### File Operations
 Copy a file:
 ```zig
-try shutil.cmd.cp(allocator, "source.txt", "destination.txt");
+try shutil.cmd.cp(allocator, "source.txt", "destination.txt", .{});
 ```
 
 Create a directory:
@@ -97,19 +97,19 @@ const path = try shutil.cmd.pwd(allocator);
 
 Remove file and dir:
 ```zig
-try shuitil.cmd.rm(allocator, "text_file", false, true);
-try shuitil.cmd.rm(allocator, "mydir", true, true);
+try shuitil.cmd.rm(allocator, "text_file", .{});
+try shuitil.cmd.rm(allocator, "mydir", .{.dir = true} );
 ```
 
 ### Package Management
 Install a package using `apt`:
 ```zig
-try shutil.package.apt.install(allocator, "vim", true);
+try shutil.package.apt.install(allocator, "vim", .{.auto_yes = true});
 ```
 
 Update package lists using `dnf`:
 ```zig
-try shutil.package.dnf.update(allocator, true);
+try shutil.package.dnf.update(allocator, .{.auto_yes = true});
 ```
 
 ### User Information

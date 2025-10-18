@@ -9,7 +9,7 @@ Shutil is a lightweight, open-source static library for Zig that simplifies comm
 - Search: file (`find`), text in file (`grep`), command (`isAvilableCommand`).
 - Package management support for `apt`, `dnf`, `pacman`, and  `yum` (install, remove, update).
 - User information utilities: retrieve user ID (`get_uid`) and username (`get_name`), add user (`add_user`) and del user (`del_user`).
-- Git operations: clone (`clone`), commit (`commit`), push (`push`).
+- Git operations: clone (`clone`), commit (`commit`), push (`push`), add file (`add`).
 - Error handling for common issues like invalid paths, command failuresail, and missing outputs.
 - Memory management using Zig's allocator for safe resource handling.
 
@@ -126,7 +126,7 @@ defer allocator.free(username);
 std.debug.print("Username: {s}\n", .{username});
 ```
 
-## Users Control
+### Users Control
 User add
 ```zig
 try shutil.user.add_user(alloctor, "user");
@@ -137,7 +137,7 @@ User del
 try shutil.user.del_user(alloctor, "user");
 ```
 
-## Search Operations
+### Search Operations
 Search command:
 ```zig
 const result = try shutil.cmd.isAvilableCommand(allocator, "ls");
@@ -148,7 +148,7 @@ if (result) {
 }
 ```
 
-## Git Operations
+### Git Operations
 Clone project
 ```zig
 try shutil.git.clone(allocator, "https://github.com/Neon32eeee/Zig-shutil.git");
@@ -162,6 +162,11 @@ try shutil.git.commit(allocator, "This commit was made using Zig-shutil!");
 Push
 ```zig
 try shutil.git.push(allocator, "origin", "main");
+```
+
+Add file
+```zig
+try shutil.git.add(allocator, ".");
 ```
 
 ## Error Handling

@@ -186,18 +186,32 @@ pub const cmd = struct {
     }
 
     // Removes a file or directory
-    pub fn rm(alloc: std.mem.Allocator, file: []const u8, dir: bool) !void {
+    pub fn rm(alloc: std.mem.Allocator, file: []const u8, dir: bool, force: bool) !void {
         if (file.len == 0) return ShutilError.InvalidPath;
         if (dir) {
-            if (file.len == 0) return ShutilError.InvalidPath;
-            std.fs.cwd().access(file, .{}) catch return ShutilError.InvalidPath;
-            const command = [_][]const u8{ "rm", "-r", file };
-            try CmdCall(alloc, &command);
+            if (force) {
+                if (file.len == 0) return ShutilError.InvalidPath;
+                std.fs.cwd().access(file, .{}) catch return ShutilError.InvalidPath;
+                const command = [_][]const u8{ "rm", "-r", "-f", file };
+                try CmdCall(alloc, &command);
+            } else {
+                if (file.len == 0) return ShutilError.InvalidPath;
+                std.fs.cwd().access(file, .{}) catch return ShutilError.InvalidPath;
+                const command = [_][]const u8{ "rm", "-r", file };
+                try CmdCall(alloc, &command);
+            }
         } else {
-            if (file.len == 0) return ShutilError.InvalidPath;
-            std.fs.cwd().access(file, .{}) catch return ShutilError.InvalidPath;
-            const command = [_][]const u8{ "rm", file };
-            try CmdCall(alloc, &command);
+            if (force) {
+                if (file.len == 0) return ShutilError.InvalidPath;
+                std.fs.cwd().access(file, .{}) catch return ShutilError.InvalidPath;
+                const command = [_][]const u8{ "rm", "-f", file };
+                try CmdCall(alloc, &command);
+            } else {
+                if (file.len == 0) return ShutilError.InvalidPath;
+                std.fs.cwd().access(file, .{}) catch return ShutilError.InvalidPath;
+                const command = [_][]const u8{ "rm", file };
+                try CmdCall(alloc, &command);
+            }
         }
     }
 

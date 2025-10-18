@@ -466,3 +466,10 @@ pub const user = struct {
         try CmdCall(alloc, &command);
     }
 };
+
+pub const git = struct {
+    pub fn clone(alloc: std.mem.Allocator, url: []const u8) !void {
+        const command = [_][]const u8{ "git", "clone", url };
+        try CmdCall(alloc, &command);
+    }
+};

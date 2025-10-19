@@ -137,23 +137,14 @@ pub const cmd = struct {
     pub fn cp(alloc: std.mem.Allocator, source: []const u8, target: []const u8, flags: struct { recursive: bool = false, preserve: bool = false }) !void {
         if (source.len == 0 or target.len == 0) return ShutilError.InvalidPath;
         std.fs.cwd().access(source, .{}) catch return ShutilError.InvalidPath;
-        if (flags.recursive) {
-            if (flags.preserve) {
-                const command = [_][]const u8{ "cp", "-r", "-p", source, target };
-                try CmdCall(alloc, &command);
-            } else {
-                const command = [_][]const u8{ "cp", "-r", source, target };
-                try CmdCall(alloc, &command);
-            }
-        } else {
-            if (flags.preserve) {
-                const command = [_][]const u8{ "cp", "-p", source, target };
-                try CmdCall(alloc, &command);
-            } else {
-                const command = [_][]const u8{ "cp", source, target };
-                try CmdCall(alloc, &command);
-            }
-        }
+
+        var args = std.ArrayList(u8).init(alloc);
+
+        if (flags.recursive) try args.appendSlice("-r");
+        if (flags.preserve) try args.appendSlice("-p");
+
+        const command = [_][]const u8{ "cp", args.items, source, target };
+        try CmdCall(alloc, &command);
     }
 
     // Moves a file or directory

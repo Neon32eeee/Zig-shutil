@@ -87,7 +87,7 @@ try shutil.cmd.cp(allocator, "source.txt", "destination.txt", .{});
 
 Create a directory:
 ```zig
-try shutil.cmd.mkdir(allocator, "new_folder");
+try shutil.cmd.mkdir(allocator, "new_folder", .{});
 ```
 
 Getting the current path:

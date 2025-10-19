@@ -207,9 +207,18 @@ pub const cmd = struct {
     }
 
     // Searches for files matching a pattern
-    pub fn find(alloc: std.mem.Allocator, pattern: []const u8) ![]const u8 {
+    pub fn find(alloc: std.mem.Allocator, pattern: []const u8, flags: struct { type: ?enum { file, dir } = null }) ![]const u8 {
         if (pattern.len == 0) return ShutilError.InvalidArg;
-        const command = [_][]const u8{ "find", pattern };
+
+        var args = std.ArrayList(u8).init(alloc);
+        defer args.deinit();
+
+        if (flags.type) |t| {
+            try args.appendSlice("-type");
+            try args.appendSlice(if (t == .file) "f" else "d");
+        }
+
+        const command = [_][]const u8{ "find", args.items, pattern };
         const result = try CmdCallAndReturn(alloc, &command);
 
         if (result.len == 0) {

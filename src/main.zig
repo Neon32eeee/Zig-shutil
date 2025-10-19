@@ -134,7 +134,7 @@ pub const cmd = struct {
     }
 
     // Copies a file or directory
-    pub fn cp(alloc: std.mem.Allocator, source: []const u8, target: []const u8, flags: struct { recursive: bool = false, preserve: bool = false }) !void {
+    pub fn cp(alloc: std.mem.Allocator, source: []const u8, target: []const u8, flags: struct { recursive: bool = false, preserve: bool = false, verbose: bool = false }) !void {
         if (source.len == 0 or target.len == 0) return ShutilError.InvalidPath;
         std.fs.cwd().access(source, .{}) catch return ShutilError.InvalidPath;
 
@@ -142,6 +142,7 @@ pub const cmd = struct {
 
         if (flags.recursive) try args.appendSlice("-r");
         if (flags.preserve) try args.appendSlice("-p");
+        if (flags.verbose) try args.appendSlice("-v");
 
         const command = [_][]const u8{ "cp", args.items, source, target };
         try CmdCall(alloc, &command);

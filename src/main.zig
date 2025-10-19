@@ -134,15 +134,25 @@ pub const cmd = struct {
     }
 
     // Copies a file or directory
-    pub fn cp(alloc: std.mem.Allocator, source: []const u8, target: []const u8, flags: struct { recursive: bool = false }) !void {
+    pub fn cp(alloc: std.mem.Allocator, source: []const u8, target: []const u8, flags: struct { recursive: bool = false, preserve: bool = false }) !void {
         if (source.len == 0 or target.len == 0) return ShutilError.InvalidPath;
         std.fs.cwd().access(source, .{}) catch return ShutilError.InvalidPath;
         if (flags.recursive) {
-            const command = [_][]const u8{ "cp", "-r", source, target };
-            try CmdCall(alloc, &command);
+            if (flags.preserve) {
+                const command = [_][]const u8{ "cp", "-r", "-p", source, target };
+                try CmdCall(alloc, &command);
+            } else {
+                const command = [_][]const u8{ "cp", "-r", source, target };
+                try CmdCall(alloc, &command);
+            }
         } else {
-            const command = [_][]const u8{ "cp", source, target };
-            try CmdCall(alloc, &command);
+            if (flags.preserve) {
+                const command = [_][]const u8{ "cp", "-p", source, target };
+                try CmdCall(alloc, &command);
+            } else {
+                const command = [_][]const u8{ "cp", source, target };
+                try CmdCall(alloc, &command);
+            }
         }
     }
 
@@ -467,27 +477,33 @@ pub const user = struct {
     }
 };
 
+// Namespace for git utils
 pub const git = struct {
+    // clones the poject from url
     pub fn clone(alloc: std.mem.Allocator, url: []const u8) !void {
         const command = [_][]const u8{ "git", "clone", url };
         try CmdCall(alloc, &command);
     }
 
+    // the commits poject with commentary
     pub fn commit(alloc: std.mem.Allocator, comment: []const u8) !void {
         const command = [_][]const u8{ "git", "commit", "-m", comment };
         try CmdCall(alloc, &command);
     }
 
+    // the push with source branch ih target branch
     pub fn push(alloc: std.mem.Allocator, source_branch: []const u8, target_branch: []const u8) !void {
         const command = [_][]const u8{ "git", "push", source_branch, target_branch };
         try CmdCall(alloc, &command);
     }
 
+    // the adds file in commit
     pub fn add(alloc: std.mem.Allocator, file: []const u8) !void {
         const command = [_][]const u8{ "git", "add", file };
         try CmdCall(alloc, &command);
     }
 
+    // the pull in source branch with target branch
     pub fn pull(alloc: std.mem.Allocator, source_branch: []const u8, target_branch: []const u8) !void {
         const command = [_][]const u8{ "git", "pull", source_branch, target_branch };
         try CmdCall(alloc, &command);

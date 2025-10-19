@@ -162,8 +162,13 @@ pub const cmd = struct {
 
         if (flags.parents) try args.appendSlice("-p");
 
-        const command = [_][]const u8{ "mkdir", args.items, name };
-        try CmdCall(alloc, &command);
+        if (args.items.len != 0) {
+            const command = [_][]const u8{ "mkdir", args.items, name };
+            try CmdCall(alloc, &command);
+        } else {
+            const command = [_][]const u8{ "mkdir", name };
+            try CmdCall(alloc, &command);
+        }
     }
 
     // Creates an empty file
@@ -215,10 +220,16 @@ pub const cmd = struct {
 
         if (flags.type) |t| {
             try args.appendSlice("-type");
-            try args.appendSlice(if (t == .file) "f" else "d");
+            try args.appendSlice(if (t == .file) " f" else " d");
         }
 
-        const command = [_][]const u8{ "find", args.items, pattern };
+        const command = [_][]const u8{
+            "sh",
+            "-c",
+            "find",
+            pattern,
+            args.items,
+        };
         const result = try CmdCallAndReturn(alloc, &command);
 
         if (result.len == 0) {

@@ -234,36 +234,35 @@ pub const package = struct {
         // Installs a package using apt
         pub fn install(alloc: std.mem.Allocator, pkg: []const u8, flags: struct { auto_yes: bool = false }) !void {
             if (pkg.len == 0) return ShutilError.InvalidArg;
-            if (flags.auto_yes) {
-                const command = [_][]const u8{ "sudo", "apt", "install", "-y", pkg };
-                try CmdCall(alloc, &command);
-            } else {
-                const command = [_][]const u8{ "sudo", "apt", "install", pkg };
-                try CmdCall(alloc, &command);
-            }
+
+            var args = std.ArrayList(u8).init(alloc);
+
+            if (flags.auto_yes) try args.appendSlice("-y");
+
+            const command = [_][]const u8{ "sudo", "apt", "install", args.items, pkg };
+            try CmdCall(alloc, &command);
         }
 
         // Removes a package using apt
         pub fn remove(alloc: std.mem.Allocator, pkg: []const u8, flags: struct { auto_yes: bool = false }) !void {
             if (pkg.len == 0) return ShutilError.InvalidArg;
-            if (flags.auto_yes) {
-                const command = [_][]const u8{ "sudo", "apt", "remove", "-y", pkg };
-                try CmdCall(alloc, &command);
-            } else {
-                const command = [_][]const u8{ "sudo", "apt", "remove", pkg };
-                try CmdCall(alloc, &command);
-            }
+
+            var args = std.ArrayList(u8).init(alloc);
+
+            if (flags.auto_yes) try args.appendSlice("-y");
+
+            const command = [_][]const u8{ "sudo", "apt", "remove", args.items, pkg };
+            try CmdCall(alloc, &command);
         }
 
         // Updates the apt package index
         pub fn update(alloc: std.mem.Allocator, flags: struct { auto_yes: bool = false }) !void {
-            if (flags.auto_yes) {
-                const command = [_][]const u8{ "sudo", "apt", "update", "-y" };
-                try CmdCall(alloc, &command);
-            } else {
-                const command = [_][]const u8{ "sudo", "apt", "update" };
-                try CmdCall(alloc, &command);
-            }
+            var args = std.ArrayList(u8).init(alloc);
+
+            if (flags.auto_yes) try args.appendSlice("-y");
+
+            const command = [_][]const u8{ "sudo", "apt", "update", args.items };
+            try CmdCall(alloc, &command);
         }
 
         // Checks if apt is available
@@ -282,36 +281,35 @@ pub const package = struct {
         // Installs a package using dnf
         pub fn install(alloc: std.mem.Allocator, pkg: []const u8, flags: struct { auto_yes: bool = false }) !void {
             if (pkg.len == 0) return ShutilError.InvalidArg;
-            if (flags.auto_yes) {
-                const command = [_][]const u8{ "sudo", "dnf", "install", "-y", pkg };
-                try CmdCall(alloc, &command);
-            } else {
-                const command = [_][]const u8{ "sudo", "dnf", "install", pkg };
-                try CmdCall(alloc, &command);
-            }
+
+            var args = std.ArrayList(u8).init(alloc);
+
+            if (flags.auto_yes) try args.appendSlice("-y");
+
+            const command = [_][]const u8{ "sudo", "dnf", "install", args.items, pkg };
+            try CmdCall(alloc, &command);
         }
 
         // Removes a package using dnf
         pub fn remove(alloc: std.mem.Allocator, pkg: []const u8, flags: struct { auto_yes: bool = false }) !void {
             if (pkg.len == 0) return ShutilError.InvalidArg;
-            if (flags.auto_yes) {
-                const command = [_][]const u8{ "sudo", "dnf", "remove", "-y", pkg };
-                try CmdCall(alloc, &command);
-            } else {
-                const command = [_][]const u8{ "sudo", "dnf", "remove", pkg };
-                try CmdCall(alloc, &command);
-            }
+
+            var args = std.ArrayList(u8).init(alloc);
+
+            if (flags.auto_yes) try args.appendSlice("-y");
+
+            const command = [_][]const u8{ "sudo", "dnf", "remove", args.items, pkg };
+            try CmdCall(alloc, &command);
         }
 
         // Updates the dnf package index
         pub fn update(alloc: std.mem.Allocator, flags: struct { auto_yes: bool = false }) !void {
-            if (flags.auto_yes) {
-                const command = [_][]const u8{ "sudo", "dnf", "update", "-y" };
-                try CmdCall(alloc, &command);
-            } else {
-                const command = [_][]const u8{ "sudo", "dnf", "update" };
-                try CmdCall(alloc, &command);
-            }
+            var args = std.ArrayList(u8).init(alloc);
+
+            if (flags.auto_yes) try args.appendSlice("-y");
+
+            const command = [_][]const u8{ "sudo", "dnf", "update", args.items };
+            try CmdCall(alloc, &command);
         }
 
         // Checks if dnf is available
@@ -330,36 +328,35 @@ pub const package = struct {
         // Installs a package using pacman
         pub fn install(alloc: std.mem.Allocator, pkg: []const u8, flags: struct { auto_yes: bool = false }) !void {
             if (pkg.len == 0) return ShutilError.InvalidArg;
-            if (flags.auto_yes) {
-                const command = [_][]const u8{ "sudo", "pacman", "-S", "-noconfirm", pkg };
-                try CmdCall(alloc, &command);
-            } else {
-                const command = [_][]const u8{ "sudo", "pacman", "-S", pkg };
-                try CmdCall(alloc, &command);
-            }
+
+            var args = std.ArrayList(u8).init(alloc);
+
+            if (flags.auto_yes) try args.appendSlice("-noconfirm");
+
+            const command = [_][]const u8{ "sudo", "pacman", "-S", pkg };
+            try CmdCall(alloc, &command);
         }
 
         // Removes a package using pacman
         pub fn remove(alloc: std.mem.Allocator, pkg: []const u8, flags: struct { auto_yes: bool = false }) !void {
             if (pkg.len == 0) return ShutilError.InvalidArg;
-            if (flags.auto_yes) {
-                const command = [_][]const u8{ "sudo", "pacman", "-R", "-noconfirm", pkg };
-                try CmdCall(alloc, &command);
-            } else {
-                const command = [_][]const u8{ "sudo", "pacman", "-R", pkg };
-                try CmdCall(alloc, &command);
-            }
+
+            var args = std.ArrayList(u8).init(alloc);
+
+            if (flags.auto_yes) try args.appendSlice("-noconfirm");
+
+            const command = [_][]const u8{ "sudo", "pacman", "-R", pkg };
+            try CmdCall(alloc, &command);
         }
 
         // Updates the pacman package index
         pub fn update(alloc: std.mem.Allocator, flags: struct { auto_yes: bool = false }) !void {
-            if (flags.auto_yes) {
-                const command = [_][]const u8{ "sudo", "pacman", "-Syu", "-noconfirm" };
-                try CmdCall(alloc, &command);
-            } else {
-                const command = [_][]const u8{ "sudo", "pacman", "-Syu" };
-                try CmdCall(alloc, &command);
-            }
+            var args = std.ArrayList(u8).init(alloc);
+
+            if (flags.auto_yes) try args.appendSlice("-noconfirm");
+
+            const command = [_][]const u8{ "sudo", "pacman", "-Syu" };
+            try CmdCall(alloc, &command);
         }
 
         // Checks if pacman is available
@@ -378,36 +375,35 @@ pub const package = struct {
         // Installs a package using yum
         pub fn install(alloc: std.mem.Allocator, pkg: []const u8, flags: struct { auto_yes: bool = false }) !void {
             if (pkg.len == 0) return ShutilError.InvalidArg;
-            if (flags.auto_yes) {
-                const command = [_][]const u8{ "sudo", "yum", "install", "-y", pkg };
-                try CmdCall(alloc, &command);
-            } else {
-                const command = [_][]const u8{ "sudo", "yum", "install", pkg };
-                try CmdCall(alloc, &command);
-            }
+
+            var args = std.ArrayList(u8).init(alloc);
+
+            if (flags.auto_yes) try args.appendSlice("-y");
+
+            const command = [_][]const u8{ "sudo", "yum", "install", args.items, pkg };
+            try CmdCall(alloc, &command);
         }
 
         // Removes a package using yum
         pub fn remove(alloc: std.mem.Allocator, pkg: []const u8, flags: struct { auto_yes: bool = false }) !void {
             if (pkg.len == 0) return ShutilError.InvalidArg;
-            if (flags.auto_yes) {
-                const command = [_][]const u8{ "sudo", "yum", "remove", "-y", pkg };
-                try CmdCall(alloc, &command);
-            } else {
-                const command = [_][]const u8{ "sudo", "yum", "remove", pkg };
-                try CmdCall(alloc, &command);
-            }
+
+            var args = std.ArrayList(u8).init(alloc);
+
+            if (flags.auto_yes) try args.appendSlice("-y");
+
+            const command = [_][]const u8{ "sudo", "yum", "remove", args.items, pkg };
+            try CmdCall(alloc, &command);
         }
 
         // Updates the yum package index
         pub fn update(alloc: std.mem.Allocator, flags: struct { auto_yes: bool = false }) !void {
-            if (flags.auto_yes) {
-                const command = [_][]const u8{ "sudo", "yum", "update", "-y" };
-                try CmdCall(alloc, &command);
-            } else {
-                const command = [_][]const u8{ "sudo", "yum", "update" };
-                try CmdCall(alloc, &command);
-            }
+            var args = std.ArrayList(u8).init(alloc);
+
+            if (flags.auto_yes) try args.appendSlice("-y");
+
+            const command = [_][]const u8{ "sudo", "yum", "update", args.items };
+            try CmdCall(alloc, &command);
         }
 
         // Checks if yum is available

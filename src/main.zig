@@ -199,29 +199,14 @@ pub const cmd = struct {
     // Removes a file or directory
     pub fn rm(alloc: std.mem.Allocator, file: []const u8, flags: struct { dir: bool = false, force: bool = false }) !void {
         if (file.len == 0) return ShutilError.InvalidArg;
-        if (flags.dir) {
-            if (flags.force) {
-                std.fs.cwd().access(file, .{}) catch return ShutilError.InvalidPath;
-                const command = [_][]const u8{ "rm", "-r", "-f", file };
-                try CmdCall(alloc, &command);
-            } else {
-                std.fs.cwd().access(file, .{}) catch return ShutilError.InvalidPath;
-                const command = [_][]const u8{ "rm", "-r", file };
-                try CmdCall(alloc, &command);
-            }
-        } else {
-            if (flags.force) {
-                if (file.len == 0) return ShutilError.InvalidPath;
-                std.fs.cwd().access(file, .{}) catch return ShutilError.InvalidPath;
-                const command = [_][]const u8{ "rm", "-f", file };
-                try CmdCall(alloc, &command);
-            } else {
-                if (file.len == 0) return ShutilError.InvalidPath;
-                std.fs.cwd().access(file, .{}) catch return ShutilError.InvalidPath;
-                const command = [_][]const u8{ "rm", file };
-                try CmdCall(alloc, &command);
-            }
-        }
+        var args = std.ArrayList(u8).init(alloc);
+        defer args.deinit();
+
+        if (flags.dir) try args.appendSlice("-r");
+        if (flags.force) try args.appendSlice("-f");
+
+        const command = [_][]const u8{ "rm", args.items, file };
+        try CmdCall(alloc, &command);
     }
 
     // Searches for files matching a pattern

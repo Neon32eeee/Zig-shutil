@@ -487,4 +487,9 @@ pub const git = struct {
         const command = [_][]const u8{ "git", "add", file };
         try CmdCall(alloc, &command);
     }
+
+    pub fn pull(alloc: std.mem.Allocator, source_branch: []const u8, target_branch: []const u8) !void {
+        const command = [_][]const u8{ "git", "pull", source_branch, target_branch };
+        try CmdCall(alloc, &command);
+    }
 };

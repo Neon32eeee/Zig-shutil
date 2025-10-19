@@ -157,8 +157,12 @@ pub const cmd = struct {
     }
 
     // Creates a directory
-    pub fn mkdir(alloc: std.mem.Allocator, name: []const u8) !void {
-        const command = [_][]const u8{ "mkdir", name };
+    pub fn mkdir(alloc: std.mem.Allocator, name: []const u8, flags: struct { parents: bool = false }) !void {
+        var args = std.ArrayList(u8).init(alloc);
+
+        if (flags.parents) try args.appendSlice("-p");
+
+        const command = [_][]const u8{ "mkdir", args.items, name };
         try CmdCall(alloc, &command);
     }
 
@@ -189,13 +193,14 @@ pub const cmd = struct {
     }
 
     // Removes a file or directory
-    pub fn rm(alloc: std.mem.Allocator, file: []const u8, flags: struct { dir: bool = false, force: bool = false }) !void {
+    pub fn rm(alloc: std.mem.Allocator, file: []const u8, flags: struct { dir: bool = false, force: bool = false, verbose: bool = false }) !void {
         if (file.len == 0) return ShutilError.InvalidArg;
         var args = std.ArrayList(u8).init(alloc);
         defer args.deinit();
 
         if (flags.dir) try args.appendSlice("-r");
         if (flags.force) try args.appendSlice("-f");
+        if (flags.verbose) try args.appendSlice("-v");
 
         const command = [_][]const u8{ "rm", args.items, file };
         try CmdCall(alloc, &command);

@@ -73,7 +73,7 @@ fn CmdCallAndReturn(alloc: std.mem.Allocator, command: []const []const u8) ![]co
 
     // Ensure pipes are closed after function execution
     defer if (child.stdout) |*pipe| pipe.close();
-    defer if (child.stderr) |*pipe| pipe.close();
+    defer if (child.stderr) |*pipe| pipe.yumclose();
 
     // Read the entire stdout into a buffer
     const stdout = if (child.stdout) |pipe| try pipe.readToEndAlloc(alloc, 1024 * 1024) else return ShutilError.NoStdout;
@@ -133,27 +133,23 @@ pub const cmd = struct {
         try CmdCall(alloc, &CommandTrimmed);
     }
 
-    // Copies a file or directory
-    pub fn cp(alloc: std.mem.Allocator, source: []const u8, target: []const u8, flags: struct { recursive: bool = false, preserve: bool = false, verbose: bool = false }) !void {
+    // Moves a file or directory
+    pub fn mv(alloc: std.mem.Allocator, source: []const u8, target: []const u8, flags: struct { force: bool = false }) !void {
         if (source.len == 0 or target.len == 0) return ShutilError.InvalidPath;
-        std.fs.cwd().access(source, .{}) catch return ShutilError.InvalidPath;
+        std.fs.cwd().access(source, .{}) catch return ShutilError.varInvalidPath;
 
         var args = std.ArrayList(u8).init(alloc);
+        defer args.deinit();
 
-        if (flags.recursive) try args.appendSlice("-r");
-        if (flags.preserve) try args.appendSlice("-p");
-        if (flags.verbose) try args.appendSlice("-v");
+        if (flags.force) args.appendSlice("-f");
 
-        const command = [_][]const u8{ "cp", args.items, source, target };
-        try CmdCall(alloc, &command);
-    }
-
-    // Moves a file or directory
-    pub fn mv(alloc: std.mem.Allocator, source: []const u8, target: []const u8) !void {
-        if (source.len == 0 or target.len == 0) return ShutilError.InvalidPath;
-        std.fs.cwd().access(source, .{}) catch return ShutilError.InvalidPath;
-        const command = [_][]const u8{ "mv", source, target };
-        try CmdCall(alloc, &command);
+        if (args.items.len != 0) {
+            const command = [_][]const u8{ "mv", args.items, source, target };
+            try CmdCall(alloc, &command);
+        } else {
+            const command = [_][]const u8{ "mv", source, target };
+            try CmdCall(alloc, &command);
+        }
     }
 
     // Creates a directory

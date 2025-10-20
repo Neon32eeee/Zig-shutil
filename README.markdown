@@ -64,7 +64,7 @@ const shutil = @import("shutil");
 
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
-    try shutil.cmd.run(allocator, "ls -l");
+    try shutil.cmd.run(.{}, "ls -l");
 }
 ```
 
@@ -75,30 +75,30 @@ const shutil = @import("shutil");
 
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
-    try shutil.cmd.sudo.run(allocator, "ls -l");
+    try shutil.cmd.sudo.run(.{}, "ls -l");
 }
 ```
 
 ### File Operations
 Copy a file:
 ```zig
-try shutil.cmd.cp(allocator, "source.txt", "destination.txt", .{});
+try shutil.cmd.cp(.{}, "source.txt", "destination.txt", .{});
 ```
 
 Create a directory:
 ```zig
-try shutil.cmd.mkdir(allocator, "new_folder", .{});
+try shutil.cmd.mkdir(.{}, "new_folder", .{});
 ```
 
 Getting the current path:
 ```zig
-const path = try shutil.cmd.pwd(allocator);
+const path = try shutil.cmd.pwd(.{});
 ```
 
 Remove file and dir:
 ```zig
-try shuitil.cmd.rm(allocator, "text_file", .{});
-try shuitil.cmd.rm(allocator, "mydir", .{.dir = true} );
+try shuitil.cmd.rm(.{}, "text_file", .{});
+try shuitil.cmd.rm(.{}, "mydir", .{.dir = true} );
 ```
 
 ### Package Management
@@ -121,7 +121,7 @@ std.debug.print("User ID: {}\n", .{uid});
 
 Get the current username:
 ```zig
-const username = try shutil.user.get_name(allocator);
+const username = try shutil.user.get_name(.{});
 defer allocator.free(username);
 std.debug.print("Username: {s}\n", .{username});
 ```
@@ -129,18 +129,18 @@ std.debug.print("Username: {s}\n", .{username});
 ### Users Control
 User add
 ```zig
-try shutil.user.add_user(alloctor, "user");
+try shutil.user.add_user(.{}, "user");
 ```
 
 User del
 ```zig
-try shutil.user.del_user(alloctor, "user");
+try shutil.user.del_user(.{}, "user");
 ```
 
 ### Search Operations
 Search command:
 ```zig
-const result = try shutil.cmd.isAvilableCommand(allocator, "ls");
+const result = try shutil.cmd.isAvilableCommand(.{}, "ls");
 if (result) {
     std.debug.print("You heve command ls!", .{});
 } else {
@@ -161,12 +161,12 @@ try shutil.git.commit(allocator, "This commit was made using Zig-shutil!");
 
 Push
 ```zig
-try shutil.git.push(allocator, "origin", "main");
+try shutil.git.push(.{}, "origin", "main");
 ```
 
 Add file
 ```zig
-try shutil.git.add(allocator, ".");
+try shutil.git.add(.{}, ".");
 ```
 
 ## Error Handling

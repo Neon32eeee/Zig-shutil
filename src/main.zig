@@ -38,7 +38,7 @@ fn CmdCall(settings: CmdSettings, command: []const []const u8) !void {
     if (child.stdout) |pipe| {
         while (true) {
             const bytes_read = try pipe.read(buffer);
-            if (bytes_read == 0) break; // Конец потока
+            if (bytes_read == 0) break;
             try stdout_writer.writeAll(buffer[0..bytes_read]);
         }
     } else {
@@ -142,7 +142,7 @@ pub const cmd = struct {
     // Moves a file or directory
     pub fn mv(settings: CmdSettings, source: []const u8, target: []const u8, flags: struct { force: bool = false }) !void {
         if (source.len == 0 or target.len == 0) return ShutilError.InvalidPath;
-        std.fs.cwd().access(source, .{}) catch return ShutilError.varInvalidPath;
+        std.fs.cwd().access(source, .{}) catch return ShutilError.InvalidPath;
 
         var args = std.ArrayList(u8).init(settings.allocator);
         defer args.deinit();
@@ -490,9 +490,7 @@ pub const user = struct {
     }
 
     // Retrieves the current user's username
-    pub fn get_name(
-        settings: CmdSettings,
-    ) ![]const u8 {
+    pub fn get_name(settings: CmdSettings) ![]const u8 {
         const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{"whoami"};
         const result = try CmdCallAndReturn(setting_end, &command);

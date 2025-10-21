@@ -8,7 +8,7 @@ Shutil is a lightweight, open-source static library for Zig that simplifies comm
 - File operations: copy (`cp`), move (`mv`), create directories (`mkdir`), create files (`touch`), display file contents (`cat`), echo text (`echo`), get current path (`pwd`), remove files or directories (`rm`), find files (`find`), search text in files (`grep`).
 - Check command availability with `isAvailableCommand`.
 - Package management for `apt`, `dnf`, `pacman`, and `yum` (install, remove, update).
-- User management: retrieve user ID (`get_uid`), username (`get_name`), add user (`add_user`), delete user (`del_user`).
+- User management: retrieve user ID (`getUID`), username (`getName`), add user (`addUser`), delete user (`delUser`).
 - Git operations: clone (`clone`), commit (`commit`), push (`push`), add files (`add`), pull (`pull`).
 - Error handling for issues like invalid paths, command failures, missing outputs, and invalid arguments.
 - Memory management using Zig's allocator for safe resource handling.
@@ -189,25 +189,25 @@ std.debug.print("Apt available: {}\n", .{apt_available});
 ### User Management
 Get the current user's ID:
 ```zig
-const uid = try shutil.user.get_uid();
+const uid = try shutil.user.getUID();
 std.debug.print("User ID: {}\n", .{uid});
 ```
 
 Get the current username:
 ```zig
-const username = try shutil.user.get_name(.{});
+const username = try shutil.user.getName(.{});
 defer allocator.free(username);
 std.debug.print("Username: {s}\n", .{username});
 ```
 
 Add a new user:
 ```zig
-try shutil.user.add_user(.{}, "newuser");
+try shutil.user.addUser(.{}, "newuser");
 ```
 
 Delete a user:
 ```zig
-try shutil.user.del_user(.{}, "newuser");
+try shutil.user.delUser(.{}, "newuser");
 ```
 
 ### Git Operations

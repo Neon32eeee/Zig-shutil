@@ -144,8 +144,8 @@ pub const cmd = struct {
     }
 
     // Copies a file or directory
-    // Flag recursive remove directory
-    // Flag verbose rpint removed file/directory
+    // ╰─Flag recursive remove directory
+    // ╰─Flag verbose rpint removed file/directory
     pub fn cp(settings: CmdSettings, source: []const u8, target: []const u8, flags: struct { recursive: bool = false, preserve: bool = false, verbose: bool = false }) !void {
         if (source.len == 0 or target.len == 0) return ShutilError.InvalidPath;
         std.fs.cwd().access(source, .{}) catch return ShutilError.InvalidPath;
@@ -169,7 +169,7 @@ pub const cmd = struct {
     }
 
     // Moves a file or directory
-    // Flag force suppresses errors if the file doesn't exist
+    // ╰─Flag force suppresses errors if the file doesn't exist
     pub fn mv(settings: CmdSettings, source: []const u8, target: []const u8, flags: struct { force: bool = false }) !void {
         if (source.len == 0 or target.len == 0) return ShutilError.InvalidPath;
         std.fs.cwd().access(source, .{}) catch return ShutilError.InvalidPath;
@@ -191,7 +191,7 @@ pub const cmd = struct {
     }
 
     // Creates a directory
-    // Flag parants creates parent directories as needed
+    // ╰─Flag parants creates parent directories as needed
     pub fn mkdir(settings: CmdSettings, name: []const u8, flags: struct { parents: bool = false }) !void {
         var args = std.ArrayList(u8).init(settings.allocator);
 
@@ -252,9 +252,9 @@ pub const cmd = struct {
     }
 
     // Removes a file or directory
-    // Flag dir remove directory
-    // Flag force suppresses errors if the file doesn't exist
-    // Flag verbose rpint removed file/directory
+    // ╰─Flag dir remove directory
+    // ╰─Flag force suppresses errors if the file doesn't exist
+    // ╰─Flag verbose rpint removed file/directory
     pub fn rm(settings: CmdSettings, file: []const u8, flags: struct { dir: bool = false, force: bool = false, verbose: bool = false }) !void {
         if (file.len == 0) return ShutilError.InvalidArg;
         var args = std.ArrayList(u8).init(settings.allocator);
@@ -270,7 +270,7 @@ pub const cmd = struct {
     }
 
     // Searches for files matching a pattern
-    // Type f (file) serch only file, d (dir) serch only dir
+    // ╰─Flag type f (file) serch only file, d (dir) serch only dir
     pub fn find(settings: CmdSettings, pattern: []const u8, flags: struct { type: ?enum { file, dir } = null }) ![]const u8 {
         if (pattern.len == 0) return ShutilError.InvalidArg;
 
@@ -544,13 +544,13 @@ pub const package = struct {
 //-----------------------------------------
 pub const user = struct {
     // Retrieves the current user's UID
-    pub fn get_uid() !u32 {
+    pub fn getUID() !u32 {
         const UID = std.os.linux.getuid();
         return UID;
     }
 
     // Retrieves the current user's username
-    pub fn get_name(settings: CmdSettings) ![]const u8 {
+    pub fn getName(settings: CmdSettings) ![]const u8 {
         const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{"whoami"};
         const result = try CmdCallAndReturn(setting_end, &command);
@@ -561,14 +561,14 @@ pub const user = struct {
     }
 
     // Adds a new user to the system
-    pub fn add_user(settings: CmdSettings, username: []const u8) !void {
+    pub fn addUser(settings: CmdSettings, username: []const u8) !void {
         const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{ "sudo", "useradd", username };
         try CmdCall(setting_end, &command);
     }
 
     // Deletes a user from the system
-    pub fn del_user(settings: CmdSettings, username: []const u8) !void {
+    pub fn delUser(settings: CmdSettings, username: []const u8) !void {
         const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{ "sudo", "userdel", username };
         try CmdCall(setting_end, &command);

@@ -109,7 +109,9 @@ fn CmdCallAndReturn(settings: CmdSettings, command: []const []const u8) ![]const
     return result;
 }
 
-// Namespace for command-related utilities
+// ----------------------------------------
+// Namespace for command-related utilities |
+// ----------------------------------------
 pub const cmd = struct {
     // Checks if a command is available in the system
     pub fn isAvailableCommand(settings: CmdSettings, command: []const u8) !bool {
@@ -122,7 +124,9 @@ pub const cmd = struct {
         return result.len > 0;
     }
 
-    // Namespace for sudo-related commands
+    // ------------------------------------
+    // Namespace for sudo-related commands |
+    // ------------------------------------
     pub const sudo = struct {
         // Runs a command with sudo privileges
         pub fn run(settings: CmdSettings, command: []const u8) !void {
@@ -139,7 +143,31 @@ pub const cmd = struct {
         try CmdCall(setting_end, &CommandTrimmed);
     }
 
+    // Copies a file or directory
+    // Flag recursive remove directory
+    // Flag verbose rpint removed file/directory
+    pub fn cp(alloc: std.mem.Allocator, source: []const u8, target: []const u8, flags: struct { recursive: bool = false, preserve: bool = false, verbose: bool = false }) !void {
+        if (source.len == 0 or target.len == 0) return ShutilError.InvalidPath;
+        std.fs.cwd().access(source, .{}) catch return ShutilError.InvalidPath;
+
+        var args = std.ArrayList(u8).init(alloc);
+        defer args.deinit();
+
+        if (flags.recursive) try args.appendSlice("-r");
+        if (flags.preserve) try args.appendSlice("-p");
+        if (flags.verbose) try args.appendSlice("-v");
+
+        if (args.items.len != 0) {
+            const command = [_][]const u8{ "cp", args.items, source, target };
+            try CmdCall(alloc, &command);
+        } else {
+            const command = [_][]const u8{ "cp", source, target };
+            try CmdCall(alloc, &command);
+        }
+    }
+
     // Moves a file or directory
+    // Flag force suppresses errors if the file doesn't exist
     pub fn mv(settings: CmdSettings, source: []const u8, target: []const u8, flags: struct { force: bool = false }) !void {
         if (source.len == 0 or target.len == 0) return ShutilError.InvalidPath;
         std.fs.cwd().access(source, .{}) catch return ShutilError.InvalidPath;
@@ -161,6 +189,7 @@ pub const cmd = struct {
     }
 
     // Creates a directory
+    // Flag parants creates parent directories as needed
     pub fn mkdir(settings: CmdSettings, name: []const u8, flags: struct { parents: bool = false }) !void {
         var args = std.ArrayList(u8).init(settings.allocator);
 
@@ -193,6 +222,7 @@ pub const cmd = struct {
         try CmdCall(setting_end, &command);
     }
 
+    // Return content file
     pub fn catReturn(settings: CmdSettings, file: []const u8) ![]const u8 {
         const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{ "cat", file };
@@ -220,6 +250,9 @@ pub const cmd = struct {
     }
 
     // Removes a file or directory
+    // Flag dir remove directory
+    // Flag force suppresses errors if the file doesn't exist
+    // Flag verbose rpint removed file/directory
     pub fn rm(settings: CmdSettings, file: []const u8, flags: struct { dir: bool = false, force: bool = false, verbose: bool = false }) !void {
         if (file.len == 0) return ShutilError.InvalidArg;
         var args = std.ArrayList(u8).init(settings.allocator);
@@ -235,6 +268,7 @@ pub const cmd = struct {
     }
 
     // Searches for files matching a pattern
+    // Type f (file) serch only file, d (dir) serch only dir
     pub fn find(settings: CmdSettings, pattern: []const u8, flags: struct { type: ?enum { file, dir } = null }) ![]const u8 {
         if (pattern.len == 0) return ShutilError.InvalidArg;
 
@@ -278,9 +312,13 @@ pub const cmd = struct {
     }
 };
 
-// Namespace for package management utilities
+// -------------------------------------------
+// Namespace for package management utilities |
+// -------------------------------------------
 pub const package = struct {
-    // Namespace for apt package manager
+    //-----------------------------------
+    // Namespace for apt package manager |
+    // ----------------------------------
     pub const apt = struct {
         // Installs a package using apt
         pub fn install(settings: CmdSettings, pkg: []const u8, flags: struct { auto_yes: bool = false }) !void {
@@ -333,7 +371,9 @@ pub const package = struct {
         }
     };
 
-    // Namespace for dnf package manager
+    // ----------------------------------
+    // Namespace for dnf package manager |
+    // ----------------------------------
     pub const dnf = struct {
         // Installs a package using dnf
         pub fn install(settings: CmdSettings, pkg: []const u8, flags: struct { auto_yes: bool = false }) !void {
@@ -386,7 +426,9 @@ pub const package = struct {
         }
     };
 
-    // Namespace for pacman package manager
+    // -------------------------------------
+    // Namespace for pacman package manager |
+    // -------------------------------------
     pub const pacman = struct {
         // Installs a package using pacman
         pub fn install(settings: CmdSettings, pkg: []const u8, flags: struct { auto_yes: bool = false }) !void {
@@ -439,7 +481,9 @@ pub const package = struct {
         }
     };
 
-    // Namespace for yum package manager
+    // ----------------------------------
+    // Namespace for yum package manager |
+    // ----------------------------------
     pub const yum = struct {
         // Installs a package using yum
         pub fn install(settings: CmdSettings, pkg: []const u8, flags: struct { auto_yes: bool = false }) !void {
@@ -493,7 +537,9 @@ pub const package = struct {
     };
 };
 
-// Namespace for user management utilities
+// ----------------------------------------
+// Namespace for user management utilities |
+//-----------------------------------------
 pub const user = struct {
     // Retrieves the current user's UID
     pub fn get_uid() !u32 {
@@ -527,7 +573,9 @@ pub const user = struct {
     }
 };
 
-// Namespace for git utils
+// ------------------------
+// Namespace for git utils |
+// ------------------------
 pub const git = struct {
     // clones the poject from url
     pub fn clone(settings: CmdSettings, url: []const u8) !void {

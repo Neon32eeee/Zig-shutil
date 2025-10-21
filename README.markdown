@@ -109,6 +109,11 @@ Display file contents:
 try shutil.cmd.cat(.{}, "file.txt");
 ```
 
+Return file contents:
+```zig
+_ = try shutil.cmd.catReturn(.{}, "file.txt");
+```
+
 Echo text to stdout:
 ```zig
 try shutil.cmd.echo(.{}, "Hello, World!");

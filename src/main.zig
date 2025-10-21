@@ -193,6 +193,18 @@ pub const cmd = struct {
         try CmdCall(setting_end, &command);
     }
 
+    pub fn catReturn(settings: CmdSettings, file: []const u8) ![]const u8 {
+        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
+        const command = [_][]const u8{ "cat", file };
+        const result = try CmdCallAndReturn(setting_end, &command);
+
+        if (result.len == 0) {
+            return "";
+        }
+
+        return result;
+    }
+
     // Prints a string to stdout
     pub fn echo(settings: CmdSettings, arg: []const u8) !void {
         const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };

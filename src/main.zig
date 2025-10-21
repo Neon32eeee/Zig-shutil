@@ -146,11 +146,11 @@ pub const cmd = struct {
     // Copies a file or directory
     // Flag recursive remove directory
     // Flag verbose rpint removed file/directory
-    pub fn cp(alloc: std.mem.Allocator, source: []const u8, target: []const u8, flags: struct { recursive: bool = false, preserve: bool = false, verbose: bool = false }) !void {
+    pub fn cp(settings: CmdSettings, source: []const u8, target: []const u8, flags: struct { recursive: bool = false, preserve: bool = false, verbose: bool = false }) !void {
         if (source.len == 0 or target.len == 0) return ShutilError.InvalidPath;
         std.fs.cwd().access(source, .{}) catch return ShutilError.InvalidPath;
 
-        var args = std.ArrayList(u8).init(alloc);
+        var args = std.ArrayList(u8).init(settings.allocator);
         defer args.deinit();
 
         if (flags.recursive) try args.appendSlice("-r");
@@ -158,11 +158,13 @@ pub const cmd = struct {
         if (flags.verbose) try args.appendSlice("-v");
 
         if (args.items.len != 0) {
+            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "cp", args.items, source, target };
-            try CmdCall(alloc, &command);
+            try CmdCall(setting_end, &command);
         } else {
+            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "cp", source, target };
-            try CmdCall(alloc, &command);
+            try CmdCall(setting_end, &command);
         }
     }
 

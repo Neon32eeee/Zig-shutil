@@ -206,9 +206,9 @@ pub const cmd = struct {
     }
 
     // Prints a string to stdout
-    pub fn echo(settings: CmdSettings, arg: []const u8) !void {
+    pub fn echo(settings: CmdSettings, text: []const u8) !void {
         const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
-        const command = [_][]const u8{ "echo", arg };
+        const command = [_][]const u8{ "echo", text };
         try CmdCall(setting_end, &command);
     }
 

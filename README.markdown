@@ -210,6 +210,13 @@ Delete a user:
 try shutil.user.delUser(.{}, "newuser");
 ```
 
+Get user info:
+```zig
+const user_info = try shutil.user.getUserInfo(.{}, "user");
+std.debug.print("User info: {s}, {s}, {s}\n", .{user_info.uid, user_info.home, user_info.shell});
+
+```
+
 ### Git Operations
 Clone a repository:
 ```zig

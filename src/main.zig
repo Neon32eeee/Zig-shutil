@@ -3,7 +3,7 @@ const std = @import("std");
 const CmdSettings = struct { allocator: std.mem.Allocator = std.heap.page_allocator, max_buffer_size: usize = 4096 };
 
 // Defining custom error types for the library
-const ShutilError = error{ ProcessFailed, InvalidPath, NoStdout, CommandNotFound, UserNotFound, InvalidArg };
+const ShutilError = error{ ProcessFailed, InvalidPath, NoStdout, CommandNotFound, UserNotFound, InvalidArg, UserNotArg };
 
 // Executes a shell command and streams its output to stdout/stderr
 fn CmdCall(settings: CmdSettings, command: []const []const u8) !void {
@@ -572,6 +572,23 @@ pub const user = struct {
         const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{ "sudo", "userdel", username };
         try CmdCall(setting_end, &command);
+    }
+
+    pub fn getUserInfo(settings: CmdSettings, name: []const u8) !struct { uid: []const u8, home: []const u8, shell: []const u8 } {
+        const command = [_][]const u8{ "getent", "passwd", name };
+        const result = try CmdCallAndReturn(settings, &command);
+
+        var fields = std.mem.splitAny(u8, result, ":");
+
+        _ = fields.next();
+        _ = fields.next();
+        _ = fields.next();
+        const uid = fields.next() orelse "";
+        _ = fields.next();
+        const home = fields.next() orelse "";
+        const shell = fields.next() orelse "";
+
+        return .{ .uid = uid, .home = home, .shell = shell };
     }
 };
 

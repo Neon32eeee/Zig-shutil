@@ -260,7 +260,8 @@ pub const cmd = struct {
 
     // Searches for files matching a pattern
     // ╰─Flag type f (file) serch only file, d (dir) serch only dir
-    pub fn find(settings: CmdSettings, pattern: []const u8, flags: struct { type: ?enum { file, dir } = null }) ![]const u8 {
+    // ╰─Flag maxdepth limits search based on value
+    pub fn find(settings: CmdSettings, pattern: []const u8, flags: struct { type: ?enum { file, dir } = null, maxdepth: ?u32 = null }) ![]const u8 {
         if (pattern.len == 0) return ShutilError.InvalidArg;
 
         var args = std.ArrayList(u8).init(settings.allocator);
@@ -269,6 +270,10 @@ pub const cmd = struct {
         if (flags.type) |t| {
             try args.appendSlice("-type");
             try args.appendSlice(if (t == .file) " f" else " d");
+        }
+        if (flags.maxdepth) |m| {
+            try args.appendSlice("-maxdepth");
+            try args.appendSlice(try std.fmt.allocPrint(settings.allocator, "{}", .{m}));
         }
 
         const command = [_][]const u8{

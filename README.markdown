@@ -144,6 +144,7 @@ std.debug.print("Found: {s}\n", .{results});
 ```
 - Flags:
   - `type`: Filters by `file` or `dir` (`-type f` or `-type d`).
+  - `maxdepth`: Limits search based on value.
 
 Search for text in a file:
 ```zig

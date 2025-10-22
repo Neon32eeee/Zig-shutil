@@ -115,9 +115,8 @@ fn CmdCallAndReturn(settings: CmdSettings, command: []const []const u8) ![]const
 pub const cmd = struct {
     // Checks if a command is available in the system
     pub fn isAvailableCommand(settings: CmdSettings, command: []const u8) !bool {
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const CommandTrimmed = [_][]const u8{ "command", "-v", command };
-        const result = CmdCallAndReturn(setting_end, &CommandTrimmed) catch {
+        const result = CmdCallAndReturn(settings, &CommandTrimmed) catch {
             return false;
         };
         defer settings.allocator.free(result);
@@ -131,16 +130,16 @@ pub const cmd = struct {
         // Runs a command with sudo privileges
         pub fn run(settings: CmdSettings, command: []const u8) !void {
             const CommandTrimmed = [_][]const u8{ "sudo", "sh", "-c", command };
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
-            try CmdCall(setting_end, &CommandTrimmed);
+
+            try CmdCall(settings, &CommandTrimmed);
         }
     };
 
     // Runs a shell command
     pub fn run(settings: CmdSettings, command: []const u8) !void {
         const CommandTrimmed = [_][]const u8{ "sh", "-c", command };
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
-        try CmdCall(setting_end, &CommandTrimmed);
+
+        try CmdCall(settings, &CommandTrimmed);
     }
 
     // Copies a file or directory
@@ -158,13 +157,11 @@ pub const cmd = struct {
         if (flags.verbose) try args.appendSlice("-v");
 
         if (args.items.len != 0) {
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "cp", args.items, source, target };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         } else {
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "cp", source, target };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         }
     }
 
@@ -180,13 +177,11 @@ pub const cmd = struct {
         if (flags.force) args.appendSlice("-f");
 
         if (args.items.len != 0) {
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "mv", args.items, source, target };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         } else {
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "mv", source, target };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         }
     }
 
@@ -198,37 +193,34 @@ pub const cmd = struct {
         if (flags.parents) try args.appendSlice("-p");
 
         if (args.items.len != 0) {
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "mkdir", args.items, name };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         } else {
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "mkdir", name };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         }
     }
 
     // Creates an empty file
     pub fn touch(settings: CmdSettings, name: []const u8) !void {
         const command = [_][]const u8{ "touch", name };
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
-        try CmdCall(setting_end, &command);
+
+        try CmdCall(settings, &command);
     }
 
     // Displays the contents of a file
     pub fn cat(settings: CmdSettings, file: []const u8) !void {
         if (file.len == 0) return ShutilError.InvalidPath;
         std.fs.cwd().access(file, .{}) catch return ShutilError.InvalidPath;
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
+
         const command = [_][]const u8{ "cat", file };
-        try CmdCall(setting_end, &command);
+        try CmdCall(settings, &command);
     }
 
     // Return content file
     pub fn catReturn(settings: CmdSettings, file: []const u8) ![]const u8 {
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{ "cat", file };
-        const result = try CmdCallAndReturn(setting_end, &command);
+        const result = try CmdCallAndReturn(settings, &command);
 
         if (result.len == 0) {
             return "";
@@ -239,16 +231,14 @@ pub const cmd = struct {
 
     // Prints a string to stdout
     pub fn echo(settings: CmdSettings, text: []const u8) !void {
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{ "echo", text };
-        try CmdCall(setting_end, &command);
+        try CmdCall(settings, &command);
     }
 
     // Returns the current working directory
     pub fn pwd(settings: CmdSettings) ![]const u8 {
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{"pwd"};
-        return CmdCallAndReturn(setting_end, &command);
+        return CmdCallAndReturn(settings, &command);
     }
 
     // Removes a file or directory
@@ -264,9 +254,8 @@ pub const cmd = struct {
         if (flags.force) try args.appendSlice("-f");
         if (flags.verbose) try args.appendSlice("-v");
 
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{ "rm", args.items, file };
-        try CmdCall(setting_end, &command);
+        try CmdCall(settings, &command);
     }
 
     // Searches for files matching a pattern
@@ -282,7 +271,6 @@ pub const cmd = struct {
             try args.appendSlice(if (t == .file) " f" else " d");
         }
 
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{
             "sh",
             "-c",
@@ -290,7 +278,7 @@ pub const cmd = struct {
             pattern,
             args.items,
         };
-        const result = try CmdCallAndReturn(setting_end, &command);
+        const result = try CmdCallAndReturn(settings, &command);
 
         if (result.len == 0) {
             return "";
@@ -302,9 +290,9 @@ pub const cmd = struct {
     // Searches for a pattern in a file
     pub fn grep(settings: CmdSettings, pattern: []const u8, file: []const u8) ![]const u8 {
         if (pattern.len == 0) return ShutilError.InvalidArg;
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
+
         const command = [_][]const u8{ "grep", pattern, file };
-        const result = try CmdCallAndReturn(setting_end, &command);
+        const result = try CmdCallAndReturn(settings, &command);
 
         if (result.len == 0) {
             return "";
@@ -330,9 +318,8 @@ pub const package = struct {
 
             if (flags.auto_yes) try args.appendSlice("-y");
 
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "sudo", "apt", "install", args.items, pkg };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         }
 
         // Removes a package using apt
@@ -343,9 +330,8 @@ pub const package = struct {
 
             if (flags.auto_yes) try args.appendSlice("-y");
 
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "sudo", "apt", "remove", args.items, pkg };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         }
 
         // Updates the apt package index
@@ -354,21 +340,19 @@ pub const package = struct {
 
             if (flags.auto_yes) try args.appendSlice("-y");
 
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "sudo", "apt", "update", args.items };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         }
 
         // Checks if apt is available
         pub fn isAvailable(
             settings: CmdSettings,
         ) !bool {
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "command", "-v", "apt" };
-            const result = CmdCallAndReturn(setting_end, &command) catch {
+            const result = CmdCallAndReturn(settings, &command) catch {
                 return false;
             };
-            defer setting_end.allocator.free(result);
+            defer settings.allocator.free(result);
             return result.len > 0;
         }
     };
@@ -385,9 +369,8 @@ pub const package = struct {
 
             if (flags.auto_yes) try args.appendSlice("-y");
 
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "sudo", "dnf", "install", args.items, pkg };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         }
 
         // Removes a package using dnf
@@ -398,9 +381,8 @@ pub const package = struct {
 
             if (flags.auto_yes) try args.appendSlice("-y");
 
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "sudo", "dnf", "remove", args.items, pkg };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         }
 
         // Updates the dnf package index
@@ -409,18 +391,16 @@ pub const package = struct {
 
             if (flags.auto_yes) try args.appendSlice("-y");
 
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "sudo", "dnf", "update", args.items };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         }
 
         // Checks if dnf is available
         pub fn isAvailable(
             settings: CmdSettings,
         ) !bool {
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "command", "-v", "dnf" };
-            const result = CmdCallAndReturn(setting_end, &command) catch {
+            const result = CmdCallAndReturn(settings, &command) catch {
                 return false;
             };
             defer settings.allocator.free(result);
@@ -440,9 +420,8 @@ pub const package = struct {
 
             if (flags.auto_yes) try args.appendSlice("-noconfirm");
 
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "sudo", "pacman", "-S", pkg };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         }
 
         // Removes a package using pacman
@@ -453,9 +432,8 @@ pub const package = struct {
 
             if (flags.auto_yes) try args.appendSlice("-noconfirm");
 
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "sudo", "pacman", "-R", pkg };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         }
 
         // Updates the pacman package index
@@ -464,18 +442,16 @@ pub const package = struct {
 
             if (flags.auto_yes) try args.appendSlice("-noconfirm");
 
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "sudo", "pacman", "-Syu" };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         }
 
         // Checks if pacman is available
         pub fn isAvailable(
             settings: CmdSettings,
         ) !bool {
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "command", "-v", "pacman" };
-            const result = CmdCallAndReturn(setting_end, &command) catch {
+            const result = CmdCallAndReturn(settings, &command) catch {
                 return false;
             };
             defer settings.allocator.free(result);
@@ -495,9 +471,8 @@ pub const package = struct {
 
             if (flags.auto_yes) try args.appendSlice("-y");
 
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "sudo", "yum", "install", args.items, pkg };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         }
 
         // Removes a package using yum
@@ -508,9 +483,8 @@ pub const package = struct {
 
             if (flags.auto_yes) try args.appendSlice("-y");
 
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "sudo", "yum", "remove", args.items, pkg };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         }
 
         // Updates the yum package index
@@ -519,18 +493,16 @@ pub const package = struct {
 
             if (flags.auto_yes) try args.appendSlice("-y");
 
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "sudo", "yum", "update", args.items };
-            try CmdCall(setting_end, &command);
+            try CmdCall(settings, &command);
         }
 
         // Checks if yum is available
         pub fn isAvailable(
             settings: CmdSettings,
         ) !bool {
-            const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
             const command = [_][]const u8{ "command", "-v", "yum" };
-            const result = CmdCallAndReturn(setting_end, &command) catch {
+            const result = CmdCallAndReturn(settings, &command) catch {
                 return false;
             };
             defer settings.allocator.free(result);
@@ -551,9 +523,8 @@ pub const user = struct {
 
     // Retrieves the current user's username
     pub fn getName(settings: CmdSettings) ![]const u8 {
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{"whoami"};
-        const result = try CmdCallAndReturn(setting_end, &command);
+        const result = try CmdCallAndReturn(settings, &command);
         if (result.len == 0) {
             return ShutilError.UserNotFound;
         }
@@ -562,16 +533,14 @@ pub const user = struct {
 
     // Adds a new user to the system
     pub fn addUser(settings: CmdSettings, username: []const u8) !void {
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{ "sudo", "useradd", username };
-        try CmdCall(setting_end, &command);
+        try CmdCall(settings, &command);
     }
 
     // Deletes a user from the system
     pub fn delUser(settings: CmdSettings, username: []const u8) !void {
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{ "sudo", "userdel", username };
-        try CmdCall(setting_end, &command);
+        try CmdCall(settings, &command);
     }
 
     pub fn getUserInfo(settings: CmdSettings, name: []const u8) !struct { uid: []const u8, home: []const u8, shell: []const u8 } {
@@ -598,36 +567,31 @@ pub const user = struct {
 pub const git = struct {
     // clones the poject from url
     pub fn clone(settings: CmdSettings, url: []const u8) !void {
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{ "git", "clone", url };
-        try CmdCall(setting_end, &command);
+        try CmdCall(settings, &command);
     }
 
     // the commits poject with commentary
     pub fn commit(settings: CmdSettings, comment: []const u8) !void {
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{ "git", "commit", "-m", comment };
-        try CmdCall(setting_end, &command);
+        try CmdCall(settings, &command);
     }
 
     // the push with source branch ih target branch
     pub fn push(settings: CmdSettings, source_branch: []const u8, target_branch: []const u8) !void {
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{ "git", "push", source_branch, target_branch };
-        try CmdCall(setting_end, &command);
+        try CmdCall(settings, &command);
     }
 
     // the adds file in commit
     pub fn add(settings: CmdSettings, file: []const u8) !void {
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{ "git", "add", file };
-        try CmdCall(setting_end, &command);
+        try CmdCall(settings, &command);
     }
 
     // the pull in source branch with target branch
     pub fn pull(settings: CmdSettings, source_branch: []const u8, target_branch: []const u8) !void {
-        const setting_end: CmdSettings = .{ .allocator = settings.allocator, .max_buffer_size = settings.max_buffer_size };
         const command = [_][]const u8{ "git", "pull", source_branch, target_branch };
-        try CmdCall(setting_end, &command);
+        try CmdCall(settings, &command);
     }
 };

@@ -1,5 +1,5 @@
 const std = @import("std");
-const Core = @import("Core.zig");
+const Core = @import("../Core.zig");
 const CmdCall = Core.CmdCall;
 const CmdCallAndReturn = Core.CmdCallAndReturn;
 const CmdSettings = Core.CmdSettings;

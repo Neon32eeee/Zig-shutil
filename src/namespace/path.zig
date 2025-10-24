@@ -19,4 +19,9 @@ pub const path = struct {
         const command = [_][]const u8{ "basename", source_path };
         return try CmdCallAndReturn(settings, &command);
     }
+
+    pub fn dirname(settings: CmdSettings, source_path: []const u8) ![]const u8 {
+        const command = [_][]const u8{ "dirname", source_path };
+        return try CmdCallAndReturn(settings, &command);
+    }
 };

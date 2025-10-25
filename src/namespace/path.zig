@@ -67,4 +67,10 @@ pub const path = struct {
         const command = [_][]const u8{ "stat", "-c", "%s", source_path };
         return try CmdCallAndReturn(settings, &command);
     }
+
+    // Return permissions file
+    pub fn permissions(settings: CmdSettings, soure_path: []const u8) ![]const u8 {
+        const command = [_][]const u8{ "stat", "-c", "%A", soure_path };
+        return try CmdCallAndReturn(settings, &command);
+    }
 };

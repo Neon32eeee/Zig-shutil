@@ -287,6 +287,11 @@ Getting size file:
 _ = try shutil.path.size(.{}, "src/main.zig");
 ```
 
+Getting permissions file:
+```zig
+_ = try shutil.path.permisson(.{}, "src/main.zig");
+```
+
 ## Error Handling
 Shutil defines a custom error set (`ShutilError`) for common failure cases:
 - `ProcessFailed`: Command execution failed.

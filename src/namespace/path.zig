@@ -51,4 +51,14 @@ pub const path = struct {
         };
         return true;
     }
+
+    // File check
+    pub fn isFile(settings: CmdSettings, target_path: []const u8) !bool {
+        const command = [_][]const u8{ "test", "-f", target_path };
+        CmdCall(settings, &command) catch |err| {
+            if (err == ShutilError.ProcessFailed) return false;
+            return err;
+        };
+        return true;
+    }
 };

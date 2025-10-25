@@ -10,7 +10,7 @@ Shutil is a lightweight, open-source static library for Zig that simplifies comm
 - Package management for `apt`, `dnf`, `pacman`, and `yum` (install, remove, update).
 - User management: retrieve user ID (`getUID`), username (`getName`), add user (`addUser`), delete user (`delUser`).
 - Git operations: clone (`clone`), commit (`commit`), push (`push`), add files (`add`), pull (`pull`).
-- Path options: getting real path(`realpath`), getting fail name without a path(`basename`), getting path to file(`dirname`), checking for path existence(`exists`).
+- Path options: getting real path(`realpath`), getting fail name without a path(`basename`), getting path to file(`dirname`), checking for path existence(`exists`), directory check(`isDir`).
 - Error handling for issues like invalid paths, command failures, missing outputs, and invalid arguments.
 - Memory management using Zig's allocator for safe resource handling.
 
@@ -265,6 +265,13 @@ Checking for path existence:
 ```zig
 if (try shutil.path.exists(.{}, "zig-out/.zig-cache")) {
   std.debug.print("Path existence!", .{});
+}
+```
+
+Directory check:
+```zig
+if (try shutil.path.isDir(.{}, "zig-out")) {
+  std.debug.print("This is a directory!", .{});
 }
 ```
 

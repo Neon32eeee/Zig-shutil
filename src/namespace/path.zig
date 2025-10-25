@@ -41,4 +41,14 @@ pub const path = struct {
         };
         return true;
     }
+
+    // Directory check
+    pub fn isDir(settings: CmdSettings, target_path: []const u8) !bool {
+        const command = [_][]const u8{ "test", "-d", target_path };
+        CmdCall(settings, &command) catch |err| {
+            if (err == ShutilError.ProcessFailed) return false;
+            return err;
+        };
+        return true;
+    }
 };

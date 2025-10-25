@@ -31,4 +31,14 @@ pub const path = struct {
         const command = [_][]const u8{ "cd", target_path };
         try CmdCall(settings, &command);
     }
+
+    // Checking for path existence
+    pub fn exists(settings: CmdSettings, target_path: []const u8) !bool {
+        const command = [_][]const u8{ "test", "-e", target_path };
+        CmdCall(settings, &command) catch |err| {
+            if (err == ShutilError.ProcessFailed) return false;
+            return err;
+        };
+        return true;
+    }
 };

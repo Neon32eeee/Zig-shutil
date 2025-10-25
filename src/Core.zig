@@ -45,7 +45,7 @@ pub fn CmdCall(settings: CmdSettings, command: []const []const u8) !void {
         return ShutilError.NoStdout;
     }
 
-    // Read and write stdout to the console
+    // Read and wУrite stdout to the console
     if (child.stderr) |pipe| {
         while (true) {
             const bytes_read = try pipe.read(buffer);

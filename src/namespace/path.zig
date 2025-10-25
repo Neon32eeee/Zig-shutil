@@ -61,4 +61,10 @@ pub const path = struct {
         };
         return true;
     }
+
+    // Return size fille
+    pub fn size(settings: CmdSettings, source_path: []const u8) ![]const u8 {
+        const command = [_][]const u8{ "stat", "-c", "%s", source_path };
+        return try CmdCallAndReturn(settings, &command);
+    }
 };

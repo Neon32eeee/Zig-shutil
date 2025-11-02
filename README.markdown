@@ -12,7 +12,7 @@ Shutil is a lightweight, open-source static library for Zig that simplifies comm
 - Git operations: clone (`clone`), commit (`commit`), push (`push`), add files (`add`), pull (`pull`).
 - Path options: getting real path(`realpath`), getting fail name without a path(`basename`), getting path to file(`dirname`), checking for path existence(`exists`), directory check(`isDir`), file check(`isFile`), getting size file(`size`).
 - Error handling for issues like invalid paths, command failures, missing outputs, and invalid arguments.
-- The net opiration: get site to url(`curl`), get file on site(`wget`).
+- The net opiration: get site to url(`curl`), get file on site(`wget`), get site status(`ping`).
 - Memory management using Zig's allocator for safe resource handling.
 
 ## Installation
@@ -296,12 +296,17 @@ _ = try shutil.path.permisson(.{}, "src/main.zig");
 ### The net operation
 Get site to url:
 ```zig
-const info_site = try shutil.net.curl(.{}, "https://localhost:8080");
+const info_site = try shutil.net.curl(.{}, "http://localhost:8080");
 ```
 
 Get file on site:
 ```zig
 try shutil.net.wget(.{}, "https://github.com/Neon32eeee/Zig-shutil/archive/refs/heads/main.zip")
+```
+
+Get status site:
+```zig
+const site_status = try shutil.net.ping(.{}. "http://localhost:8080");`
 ```
 
 ## Error Handling

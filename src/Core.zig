@@ -86,7 +86,6 @@ pub fn CmdCallAndReturn(settings: CmdSettings, command: []const []const u8) ![]c
     defer settings.allocator.free(stderr);
     if (stderr.len > 0) {
         std.debug.print("Error: {s}\n", .{stderr});
-        defer settings.allocator.free(stderr);
     }
 
     // Wait for the process to complete and check its exit status

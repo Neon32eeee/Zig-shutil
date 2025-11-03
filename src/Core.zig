@@ -57,7 +57,11 @@ pub fn CmdCall(settings: CmdSettings, command: []const []const u8) !void {
     // Wait for the process to complete and check its exit status
     const term = try child.wait();
     if (term.Exited != 0) {
-        std.debug.print("Command: {s}\n", .{command});
+        std.debug.print("Command failed with status {d}:", .{term.Exited});
+        for (command) |arg| {
+            std.debug.print(" {s}", .{arg});
+        }
+        std.debug.print("\n", .{});
         return ShutilError.ProcessFailed;
     }
 }

@@ -83,7 +83,7 @@ pub fn CmdCallAndReturn(settings: CmdSettings, command: []const []const u8) ![]c
 
     // Read the entire stderr into a buffer
     const stderr = if (child.stderr) |pipe| try pipe.readToEndAlloc(settings.allocator, settings.max_buffer_size) else &[_]u8{};
-    defer settings.allocator.free(stderr);
+    defer if (child.stderr != 0) settings.allocator.free(stderr);
     if (stderr.len > 0) {
         std.debug.print("Error: {s}\n", .{stderr});
     }

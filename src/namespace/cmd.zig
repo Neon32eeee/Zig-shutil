@@ -201,4 +201,9 @@ pub const cmd = struct {
 
         return result;
     }
+
+    pub fn ln(settings: CmdSettings, file: u8, hard_link: u8) !void {
+        const command = [_][]const u8{ "ln", file, hard_link };
+        try CmdCall(settings, &command);
+    }
 };
